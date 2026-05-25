@@ -9,7 +9,7 @@ function App() {
   const [note, setNote] = useState('');
 
   // Adres Twojego backendu w C#
-  const API_URL = 'http://localhost:5170/api/moodentry';
+  const API_URL = '/api/moodentry';
 
   // 1. FUNKCJA POBIERAJĄCA DANE (GET)
   const fetchMoods = async () => {

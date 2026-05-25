@@ -10,7 +10,7 @@ RUN pnpm run build
 
 # Etap 2: Szybki serwer Nginx do wyświetlania gotowej strony
 FROM nginx:alpine
-# Kopiujemy zbudowane pliki z Etapu 1 prosto do folderu publicznego Nginxa
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
