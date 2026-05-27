@@ -8,19 +8,39 @@ function App() {
   const [moodLevel, setMoodLevel] = useState(5);
   const [note, setNote] = useState('');
 
-  // Adres Twojego backendu w C#
+  // Adres Twojego backendu - używamy relative path, aby działało za reverse proxy
   const API_URL = '/api/moodentry';
 
   // 1. FUNKCJA POBIERAJĄCA DANE (GET)
   const fetchMoods = async () => {
+    console.log('[FETCH] Starting GET request to:', API_URL);
     try {
+      console.log('[FETCH] Sending fetch request...');
       const response = await fetch(API_URL);
+      console.log('[FETCH] Response received:', {
+        status: response.status,
+        ok: response.ok,
+        statusText: response.statusText,
+        headers: {
+          'content-type': response.headers.get('content-type'),
+          'content-length': response.headers.get('content-length'),
+        }
+      });
+      
       if (response.ok) {
-        const data = await response.json();
-        setMoods(data); // Zapisujemy nastroje w pamięci Reacta
+        const text = await response.text();
+        console.log('[FETCH] Raw response text:', text);
+        const data = JSON.parse(text);
+        console.log('[FETCH] Parsed JSON:', data);
+        setMoods(data);
+      } else {
+        console.error('[FETCH] Response not OK:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error("Error fetching the data:", error);
+      console.error("[FETCH] Error fetching the data:", error);
+      console.error("[FETCH] Error type:", error.constructor.name);
+      console.error("[FETCH] Error message:", error.message);
+      console.error("[FETCH] Error stack:", error.stack);
     }
   };
 
@@ -31,7 +51,15 @@ function App() {
 
   // 2. FUNKCJA WYSYŁAJĄCA DANE (POST)
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Zatrzymaj przeładowanie strony
+    e.preventDefault();
+    
+    const payload = {
+      moodLevel: parseInt(moodLevel),
+      note: note
+    };
+    
+    console.log('[POST] Starting POST request to:', API_URL);
+    console.log('[POST] Payload:', payload);
     
     try {
       const response = await fetch(API_URL, {
@@ -39,18 +67,25 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          moodLevel: parseInt(moodLevel),
-          note: note
-        }),
+        body: JSON.stringify(payload),
+      });
+
+      console.log('[POST] Response received:', {
+        status: response.status,
+        ok: response.ok,
+        statusText: response.statusText,
       });
 
       if (response.ok) {
-        setNote(''); // Czyścimy pole tekstowe po udanym wysłaniu
-        fetchMoods(); // Odświeżamy listę, żeby od razu zobaczyć nowy wpis!
+        console.log('[POST] Success! Clearing form and refreshing list');
+        setNote('');
+        fetchMoods();
+      } else {
+        console.error('[POST] Response not OK:', response.status);
       }
     } catch (error) {
-      console.error("Error submitting the data:", error);
+      console.error("[POST] Error submitting the data:", error);
+      console.error("[POST] Error message:", error.message);
     }
   };
 

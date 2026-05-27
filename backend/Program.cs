@@ -5,30 +5,48 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-//builder.Services.AddDbContext<AppDbContext>(options =>
-//    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
 builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    var serverVersion = new MySqlServerVersion(new Version(10, 11, 0));
-
-    options.UseMySql(connectionString, serverVersion, mySqlOptions =>
-    {
-        mySqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,
-            maxRetryDelay: TimeSpan.FromSeconds(10),
-            errorNumbersToAdd: null);
-    });
-});
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddCors(options => 
     options.AddDefaultPolicy(policy => 
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    }));
 
 // Dodanie obsługi kontrolerów (naszego API)
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+// Initialize database - retry with delay
+int maxRetries = 5;
+int delayMs = 2000;
+
+for (int i = 0; i < maxRetries; i++)
+{
+    try
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await db.Database.EnsureCreatedAsync();
+            Console.WriteLine("Database initialized successfully");
+            break;
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Database initialization attempt {i + 1}/{maxRetries} failed: {ex.Message}");
+        if (i < maxRetries - 1)
+        {
+            await Task.Delay(delayMs);
+        }
+    }
+}
 
 app.UseCors();
 app.MapControllers();
