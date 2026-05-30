@@ -11,45 +11,54 @@ function App() {
   // Adres Twojego backendu - używamy relative path, aby działało za reverse proxy
   const API_URL = '/api/moodentry';
 
-  // 1. FUNKCJA POBIERAJĄCA DANE (GET)
+  // 1. FUNKCJA POBIERAJĄCA DANE (Wywoływana tylko ręcznie, np. po dodaniu wpisu)
   const fetchMoods = async () => {
-    console.log('[FETCH] Starting GET request to:', API_URL);
     try {
-      console.log('[FETCH] Sending fetch request...');
       const response = await fetch(API_URL);
-      console.log('[FETCH] Response received:', {
-        status: response.status,
-        ok: response.ok,
-        statusText: response.statusText,
-        headers: {
-          'content-type': response.headers.get('content-type'),
-          'content-length': response.headers.get('content-length'),
-        }
-      });
-      
       if (response.ok) {
         const text = await response.text();
-        console.log('[FETCH] Raw response text:', text);
         const data = JSON.parse(text);
-        console.log('[FETCH] Parsed JSON:', data);
         setMoods(data);
       } else {
-        console.error('[FETCH] Response not OK:', response.status, response.statusText);
+        console.error('[FETCH] Response not OK:', response.status);
       }
     } catch (error) {
       console.error("[FETCH] Error fetching the data:", error);
-      console.error("[FETCH] Error type:", error.constructor.name);
-      console.error("[FETCH] Error message:", error.message);
-      console.error("[FETCH] Error stack:", error.stack);
     }
   };
 
-  // Uruchom pobieranie od razu po wejściu na stronę
+  // 2. BEZPIECZNE POBIERANIE NA STARCIE (Cieszy Lintera)
   useEffect(() => {
-    fetchMoods();
-  }, []);
+    let isMounted = true; // Zabezpieczenie przed aktualizacją odmontowanego komponentu
 
-  // 2. FUNKCJA WYSYŁAJĄCA DANE (POST)
+    const loadInitialMoods = async () => {
+      console.log('[FETCH] Starting initial GET request to:', API_URL);
+      try {
+        const response = await fetch(API_URL);
+        if (response.ok) {
+          const text = await response.text();
+          const data = JSON.parse(text);
+          
+          // Aktualizuj stan TYLKO jeśli komponent nadal jest na ekranie
+          if (isMounted) {
+            setMoods(data);
+            console.log('[FETCH] Initial load successful');
+          }
+        }
+      } catch (error) {
+        if (isMounted) console.error("[FETCH] Initial load error:", error);
+      }
+    };
+
+    loadInitialMoods();
+
+    // Funkcja czyszcząca - zapobiega błędom, gdy użytkownik nagle zamknie stronę
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Pusta tablica - uruchamia się raz
+
+  // 3. FUNKCJA WYSYŁAJĄCA DANE (POST)
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -79,7 +88,7 @@ function App() {
       if (response.ok) {
         console.log('[POST] Success! Clearing form and refreshing list');
         setNote('');
-        fetchMoods();
+        fetchMoods(); // Po udanym dodaniu, odświeżamy listę używając ręcznej funkcji
       } else {
         console.error('[POST] Response not OK:', response.status);
       }
