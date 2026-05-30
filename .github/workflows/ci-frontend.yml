@@ -13,29 +13,26 @@ jobs:
         working-directory: ./frontend
 
     steps:
-    - name: Pobranie kodu z repozytorium
+    - name: Cloning the code from the repository
       uses: actions/checkout@v4
 
-    # Skoro używasz pnpm (lockfileVersion: 9.0 wskazuje na pnpm v9), musimy go doinstalować
-    - name: Instalacja pnpm
+    - name: Installing pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 9
 
-    - name: Konfiguracja środowiska Node.js
+    - name: Configuring the Node.js environment
       uses: actions/setup-node@v4
       with:
         node-version: '22'
         cache: 'pnpm'
-        cache-dependency-path: './frontend/pnpm-lock.yaml' # Przyspiesza działanie CI, zapisując pobrane paczki
+        cache-dependency-path: './frontend/pnpm-lock.yaml'
 
-    - name: Instalacja zależności
-      # pnpm install --frozen-lockfile to odpowiednik npm ci (wymaga, by lockfile był zsynchronizowany z package.json)
+    - name: Installing dependencies
       run: pnpm install --frozen-lockfile
 
-    - name: Sprawdzenie kodu (Linter)
-      # Vite domyślnie dodaje skrypt "lint" do package.json. Jeśli go tam nie masz, możesz usunąć ten krok.
+    - name: Checking the code (Linter)
       run: pnpm run lint 
 
-    - name: Budowanie aplikacji
+    - name: Building the application
       run: pnpm run build
