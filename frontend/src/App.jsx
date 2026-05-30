@@ -128,7 +128,7 @@ function App() {
           />
         </div>
 
-        <button type="submit" style={{ width: '100%', padding: '12px', background: '#047e10', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
+        <button type="submit" style={{ width: '100%', padding: '12px', background: '#560643', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
           Submit Mood Entry
         </button>
       </form>
