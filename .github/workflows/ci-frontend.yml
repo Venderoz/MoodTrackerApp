@@ -1,0 +1,41 @@
+name: CI Frontend
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - name: Pobranie kodu z repozytorium
+      uses: actions/checkout@v4
+
+    # Skoro używasz pnpm (lockfileVersion: 9.0 wskazuje na pnpm v9), musimy go doinstalować
+    - name: Instalacja pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Konfiguracja środowiska Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'pnpm'
+        cache-dependency-path: './frontend/pnpm-lock.yaml' # Przyspiesza działanie CI, zapisując pobrane paczki
+
+    - name: Instalacja zależności
+      # pnpm install --frozen-lockfile to odpowiednik npm ci (wymaga, by lockfile był zsynchronizowany z package.json)
+      run: pnpm install --frozen-lockfile
+
+    - name: Sprawdzenie kodu (Linter)
+      # Vite domyślnie dodaje skrypt "lint" do package.json. Jeśli go tam nie masz, możesz usunąć ten krok.
+      run: pnpm run lint 
+
+    - name: Budowanie aplikacji
+      run: pnpm run build
