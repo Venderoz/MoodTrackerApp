@@ -1,4 +1,4 @@
-name: CD - Budowanie i Publikacja Obrazów
+name: CD - Building and publishing images
 
 on:
   push:
