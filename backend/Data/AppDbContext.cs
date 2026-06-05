@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 using backend.Models;
 
@@ -17,28 +15,149 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<MoodEntry> MoodEntries { get; set; }
+    public virtual DbSet<CustomLabel> CustomLabels { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseMySql("server=localhost;port=3306;database=moodtracker_db;uid=root;pwd=admin67", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.11.17-mariadb"));
+    public virtual DbSet<Entry> Entries { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserProfile> UserProfiles { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .UseCollation("utf8mb4_general_ci")
+            .UseCollation("utf8mb4_unicode_ci")
             .HasCharSet("utf8mb4");
 
-        modelBuilder.Entity<MoodEntry>(entity =>
+        modelBuilder.Entity<CustomLabel>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.Property(e => e.Id).HasColumnType("int(11)");
+            entity.ToTable("custom_labels");
+
+            entity.HasIndex(e => new { e.UserId, e.Name }, "uq_user_label").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.ColorHex)
+                .HasMaxLength(7)
+                .HasColumnName("color_hex");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
+            entity.Property(e => e.UserId)
+                .HasColumnType("int(11)")
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.CustomLabels)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("fk_custom_labels_users");
+        });
+
+        modelBuilder.Entity<Entry>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("entries");
+
+            entity.HasIndex(e => e.UserId, "fk_entries_users");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("current_timestamp()")
-                .HasColumnType("datetime");
-            entity.Property(e => e.MoodLevel).HasColumnType("int(11)");
-            entity.Property(e => e.Note).HasMaxLength(255);
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.MoodLevel)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("mood_level");
+            entity.Property(e => e.Note)
+                .HasColumnType("text")
+                .HasColumnName("note");
+            entity.Property(e => e.SleepDuration)
+                .HasPrecision(4, 2)
+                .HasColumnName("sleep_duration");
+            entity.Property(e => e.UpdatedAt)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UserId)
+                .HasColumnType("int(11)")
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Entries)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("fk_entries_users");
+
+            entity.HasMany(d => d.Labels).WithMany(p => p.Entries)
+                .UsingEntity<Dictionary<string, object>>(
+                    "EntryLabel",
+                    r => r.HasOne<CustomLabel>().WithMany()
+                        .HasForeignKey("LabelId")
+                        .HasConstraintName("fk_entry_labels_custom_labels"),
+                    l => l.HasOne<Entry>().WithMany()
+                        .HasForeignKey("EntryId")
+                        .HasConstraintName("fk_entry_labels_entries"),
+                    j =>
+                    {
+                        j.HasKey("EntryId", "LabelId")
+                            .HasName("PRIMARY")
+                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+                        j.ToTable("entry_labels");
+                        j.HasIndex(new[] { "LabelId" }, "fk_entry_labels_custom_labels");
+                        j.IndexerProperty<int>("EntryId")
+                            .HasColumnType("int(11)")
+                            .HasColumnName("entry_id");
+                        j.IndexerProperty<int>("LabelId")
+                            .HasColumnType("int(11)")
+                            .HasColumnName("label_id");
+                    });
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("users");
+
+            entity.HasIndex(e => e.Email, "email").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Email).HasColumnName("email");
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(255)
+                .HasColumnName("password_hash");
+        });
+
+        modelBuilder.Entity<UserProfile>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("user_profiles");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.BirthDate).HasColumnName("birth_date");
+            entity.Property(e => e.FirstName)
+                .HasMaxLength(100)
+                .HasColumnName("first_name");
+            entity.Property(e => e.LastName)
+                .HasMaxLength(100)
+                .HasColumnName("last_name");
+
+            entity.HasOne(d => d.IdNavigation).WithOne(p => p.UserProfile)
+                .HasForeignKey<UserProfile>(d => d.Id)
+                .HasConstraintName("fk_user_profiles_users");
         });
 
         OnModelCreatingPartial(modelBuilder);
