@@ -1,10 +1,9 @@
-CREATE DATABASE IF NOT EXISTS mood_tracker
+CREATE DATABASE IF NOT EXISTS moodtracker_db
 CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
-USE mood_tracker;
+USE moodtracker_db;
 
--- creates the main authentication table
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -32,7 +31,7 @@ CREATE TABLE entries (
     note TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT chk_mood_level CHECK (mood_level >= 1),
+    CONSTRAINT chk_mood_level CHECK (mood_level >= 1 AND mood_level <= 5),
     CONSTRAINT fk_entries_users 
         FOREIGN KEY (user_id) 
         REFERENCES users(id) 
@@ -67,6 +66,6 @@ CREATE TABLE entry_labels (
         ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- add example user in order to have the id for the frontend
+
 INSERT INTO users (id, email, password_hash) VALUES (1, 'test@test.com', 'dummy_hash_123'); 
 INSERT INTO user_profiles (id, first_name, last_name) VALUES (1, 'Jan', 'Kowalski');
