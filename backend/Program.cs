@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +18,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     }));
 
-// Dodanie obsługi kontrolerów (naszego API)
+builder.Services.AddScoped<IEntriesService, EntriesService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();

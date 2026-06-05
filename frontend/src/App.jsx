@@ -9,7 +9,7 @@ function App() {
   const [note, setNote] = useState('');
 
   // Adres Twojego backendu - używamy relative path, aby działało za reverse proxy
-  const API_URL = '/api/moodentry';
+  const API_URL = '/api/entries';
 
   // 1. FUNKCJA POBIERAJĄCA DANE (Wywoływana tylko ręcznie, np. po dodaniu wpisu)
   const fetchMoods = async () => {
