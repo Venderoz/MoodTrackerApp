@@ -1,0 +1,36 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease; 
+}
+
+:root {
+  --bg-main: #f4f7f6;
+  --bg-card: #ffffff;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --color-primary: #560643;
+  --color-primary-hover: #75085a;
+  --border-color: #ddd;
+}
+
+[data-theme="dark"] {
+  --bg-main: #121212;
+  --bg-card: #1e1e1e;
+  --text-primary: #e0e0e0;
+  --text-secondary: #aaaaaa;
+  --color-primary: #8e1b73;
+  --color-primary-hover: #a62a8a;
+  --border-color: #333333;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+}

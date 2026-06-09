@@ -1,0 +1,222 @@
+import { useState, useEffect } from 'react';
+import { Frown, Annoyed, Meh, Smile, Laugh, CheckCircle2 } from 'lucide-react';
+import { createEntry, getLabels } from '../api/conn';
+import styles from './HomePage.module.css';
+
+export default function HomePage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [step, setStep] = useState(1);
+  const [moodLevel, setMoodLevel] = useState(5);
+  const [sleepHours, setSleepHours] = useState(8);
+  const [selectedLabels, setSelectedLabels] = useState([]);
+  const [note, setNote] = useState('');
+
+  const moodOptions = [
+    { value: 1, icon: <Frown size={36} strokeWidth={1.5} />, label: 'Awful' },
+    { value: 2, icon: <Annoyed size={36} strokeWidth={1.5} />, label: 'Bad' },
+    { value: 3, icon: <Meh size={36} strokeWidth={1.5} />, label: 'Okay' },
+    { value: 4, icon: <Smile size={36} strokeWidth={1.5} />, label: 'Good' },
+    { value: 5, icon: <Laugh size={36} strokeWidth={1.5} />, label: 'Great' }
+  ];
+
+  const [availableLabels, setAvailableLabels] = useState([]);
+  useEffect(() => {
+    const fetchLabels = async () => {
+      try {
+        const labelsFromDb = await getLabels();
+        setAvailableLabels(labelsFromDb);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchLabels();
+  }, []);
+
+  const handleMoodSelect = (value) => {
+    setMoodLevel(value);
+    setStep(2); // Idziemy do Snu
+  };
+
+  const toggleLabel = (label) => {
+    if (selectedLabels.includes(label)) {
+      setSelectedLabels(selectedLabels.filter(l => l !== label)); // Odznacz
+    } else {
+      setSelectedLabels([...selectedLabels, label]); // Zaznacz
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+    try {
+      const payload = {
+        moodLevel: parseInt(moodLevel),
+        sleepDuration: parseFloat(sleepHours),
+        labelNames: selectedLabels,
+        note: note
+      };
+
+      console.log("Wysyłam do C#:", payload); // Zobacz w konsoli (F12) jak to teraz wygląda
+
+      await createEntry(payload);
+      setStep(5);
+
+      setTimeout(() => {
+        closeModal();
+        window.location.reload();
+      }, 2000);
+
+    } catch (error) {
+      console.error("[POST Error]", error);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setStep(1);
+    setMoodLevel(5);
+    setSleepHours(8);
+    setSelectedLabels([]);
+    setNote('');
+  };
+
+  return (
+    <div className={styles.homeContainer}>
+
+      <div className={styles.topSection}>
+        <div>
+          <h1 className={styles.welcomeText}>Welcome back!</h1>
+          <p className={styles.subText}>Here is your mood summary.</p>
+        </div>
+        <button className={styles.mainAddBtn} onClick={() => setIsModalOpen(true)}>
+          + Add new entry
+        </button>
+      </div>
+
+      <div className={styles.chartsGrid}>
+        <div className={styles.chartBox}>
+          <h3>Activity (Calendar)</h3>
+          <div className={styles.chartPlaceholder}>Chart 1 placeholder</div>
+        </div>
+        <div className={styles.chartBox}>
+          <h3>Mood Trend</h3>
+          <div className={styles.chartPlaceholder}>Chart 2 placeholder</div>
+        </div>
+      </div>
+
+      {isModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            {step === 1 && (
+              <div className={styles.stepContainer}>
+                <h2 className={styles.stepTitle}>How are you feeling today?</h2>
+                <p className={styles.stepSubtitle}>Select one of the options below.</p>
+
+                <div className={styles.moodGrid}>
+                  {moodOptions.map((mood) => (
+                    <button
+                      key={mood.value}
+                      className={styles.moodBtn}
+                      onClick={() => handleMoodSelect(mood.value)}
+                    >
+                      <span className={styles.moodIcon}>{mood.icon}</span>
+                      <span className={styles.moodLabel}>{mood.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <button className={styles.cancelTextBtn} onClick={closeModal}>Cancel</button>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className={styles.stepContainer}>
+                <h2 className={styles.stepTitle}>How much did you sleep?</h2>
+                <p className={styles.stepSubtitle}>Slide to adjust hours of sleep.</p>
+
+                <div className={styles.sleepContainer}>
+                  <div className={styles.sleepValue}>{sleepHours} h</div>
+                  <input
+                    type="range"
+                    min="0" max="24" step="0.1"
+                    value={sleepHours}
+                    onChange={(e) => setSleepHours(e.target.value)}
+                    className={styles.sleepSlider}
+                  />
+                  <div className={styles.sleepLabels}>
+                    <span>0 h</span>
+                    <span>24 h</span>
+                  </div>
+                </div>
+
+                <div className={styles.modalActions}>
+                  <button onClick={() => setStep(1)} className={styles.cancelBtn}>Back</button>
+                  <button onClick={() => setStep(3)} className={styles.nextBtn}>Next</button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className={styles.stepContainer}>
+                <h2 className={styles.stepTitle}>What affected your mood?</h2>
+                <p className={styles.stepSubtitle}>Select all that apply.</p>
+
+                <div className={styles.labelsGrid}>
+                  {availableLabels.map(label => (
+                    <button
+                      key={label.id}
+                      onClick={() => toggleLabel(label.name)}
+                      style={{ borderColor: label.colorHex }}
+                      className={`${styles.labelPill} ${selectedLabels.includes(label.name) ? styles.labelPillActive : ''}`}
+                    >
+                      {label.name}
+                    </button>
+                  ))}
+                </div>
+
+                <div className={styles.modalActions}>
+                  <button onClick={() => setStep(2)} className={styles.cancelBtn}>Back</button>
+                  <button onClick={() => setStep(4)} className={styles.nextBtn}>Next</button>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className={styles.stepContainer}>
+                <h2 className={styles.stepTitle}>Want to add anything else?</h2>
+                <p className={styles.stepSubtitle}>Jot down your thoughts (optional).</p>
+
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="What happened today?"
+                  className={styles.formInput}
+                  style={{ height: '120px', resize: 'vertical', marginBottom: '20px' }}
+                />
+
+                <div className={styles.modalActions}>
+                  <button type="button" onClick={() => setStep(3)} className={styles.cancelBtn}>
+                    Back
+                  </button>
+                  <button type="button" onClick={handleSubmit} className={styles.submitBtn}>
+                    Save entry
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 5 && (
+              <div className={styles.successContainer}>
+                <CheckCircle2 size={72} color="#2ecc71" className={styles.successIcon} strokeWidth={1.5} />
+                <h2 className={styles.stepTitle}>Awesome!</h2>
+                <p className={styles.stepSubtitle}>Your entry has been saved successfully.</p>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

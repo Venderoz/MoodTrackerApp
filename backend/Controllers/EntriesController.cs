@@ -28,4 +28,17 @@ public class EntriesController : ControllerBase
         var createdEntry = await _entriesService.CreateEntry(dto);
         return Ok(createdEntry);
     }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CreateEntryDto dto)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var updatedEntry = await _entriesService.UpdateEntry(id, dto);
+        if (updatedEntry == null)
+        {
+            return NotFound($"No entry with id: {id}");
+        }
+        return Ok(updatedEntry);
+    }
 }

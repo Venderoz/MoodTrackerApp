@@ -7,5 +7,6 @@ namespace backend.Services
     {
         Task<IEnumerable<Entry>> GetAllEntriesWithLabels();
         Task<Entry> CreateEntry(CreateEntryDto dto);
+        Task<Entry?> UpdateEntry(int id, CreateEntryDto dto);
     }
 }
