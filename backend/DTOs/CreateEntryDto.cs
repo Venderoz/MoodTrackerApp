@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 namespace backend.DTOs;
 public class CreateEntryDto
 {
-    [Range(0, 5, ErrorMessage = "Value out of range")]
+    [Range(1, 5, ErrorMessage = "Value out of range")]
     public sbyte MoodLevel { get; set; }
     public decimal? SleepDuration { get; set; }
     public string? Note { get; set; }
-    public List<int> LabelIds { get; set; } = new List<int>();
+    public List<string> LabelNames { get; set; } = new List<string>();
 }

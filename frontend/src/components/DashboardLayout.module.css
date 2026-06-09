@@ -1,0 +1,29 @@
+.layoutWrapper {
+  display: grid;
+  grid-template-columns: 80px 1fr 350px;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--bg-main);
+}
+
+.leftColumn {
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.mainColumn {
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.rightColumn {
+  background-color: var(--bg-card);
+  border-left: 1px solid var(--border-color);
+  padding: 20px;
+  overflow-y: auto;
+}

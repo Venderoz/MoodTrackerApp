@@ -13,7 +13,6 @@ namespace backend.Services
         {
             _context = context;
         }
-
         public async Task<IEnumerable<Entry>> GetAllEntriesWithLabels()
         {
             return await _context.Entries
@@ -31,10 +30,10 @@ namespace backend.Services
                 Note = dto.Note
             };
 
-            if (dto.LabelIds != null && dto.LabelIds.Any())
+            if (dto.LabelNames != null && dto.LabelNames.Any())
             {
                 var selectedLabels = await _context.CustomLabels
-                    .Where(label => dto.LabelIds.Contains(label.Id))
+                    .Where(label => dto.LabelNames.Contains(label.Name))
                     .ToListAsync();
 
                 foreach (var label in selectedLabels)
@@ -47,6 +46,35 @@ namespace backend.Services
             await _context.SaveChangesAsync();
 
             return newEntry;
+        }
+
+        public async Task<Entry?> UpdateEntry(int id, CreateEntryDto dto)
+        {
+            var existingEntry = await _context.Entries
+                .Include(e => e.Labels)
+                .FirstOrDefaultAsync(e => e.Id == id && e.UserId == 1);
+
+            if (existingEntry == null) return null;
+
+            existingEntry.MoodLevel = dto.MoodLevel;
+            existingEntry.SleepDuration = dto.SleepDuration;
+            existingEntry.Note = dto.Note;
+            existingEntry.UpdatedAt = DateTime.UtcNow;
+
+            existingEntry.Labels.Clear();
+
+            if (dto.LabelNames != null && dto.LabelNames.Any())
+            {
+                var newLabels = await _context.CustomLabels
+                    .Where(label => dto.LabelNames.Contains(label.Name) && label.UserId == 1)
+                    .ToListAsync();
+                foreach (var label in newLabels)
+                {
+                    existingEntry.Labels.Add(label);
+                }
+            }
+            await _context.SaveChangesAsync();
+            return existingEntry;
         }
     }
 }

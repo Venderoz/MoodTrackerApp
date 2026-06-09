@@ -1,0 +1,304 @@
+.homeContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.topSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcomeText {
+  color: var(--text-primary);
+  margin: 0 0 5px 0;
+  font-size: 2rem;
+}
+
+.subText {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.mainAddBtn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(86, 6, 67, 0.3);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.mainAddBtn:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.chartBox {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.chartBox h3 {
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.chartPlaceholder {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  background-color: var(--bg-main);
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: var(--bg-card);
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  border: 1px solid var(--border-color);
+}
+
+.modalContent h2 {
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.formGroup { margin-bottom: 20px; }
+.formLabel { display: block; margin-bottom: 8px; color: var(--text-primary); font-weight: 500; }
+.formInput {
+  width: 100%; padding: 12px; border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-main); color: var(--text-primary);
+  font-family: inherit; font-size: 15px; outline: none;
+}
+.formInput:focus { border-color: var(--color-primary); }
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.cancelBtn {
+  background: none; border: none; color: var(--text-secondary);
+  font-weight: bold; cursor: pointer; padding: 10px 20px;
+}
+
+.cancelBtn:hover { color: var(--text-primary); }
+
+.submitBtn {
+  background-color: var(--color-primary); color: white;
+  border: none; padding: 10px 20px; border-radius: 8px;
+  font-weight: bold; cursor: pointer; transition: 0.2s;
+}
+
+.submitBtn:hover { background-color: var(--color-primary-hover); }
+
+.stepContainer {
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stepTitle {
+  color: var(--text-primary);
+  margin: 0 0 5px 0;
+  text-align: center;
+}
+
+.stepSubtitle {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.moodGrid {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.moodBtn {
+  flex: 1;
+  background-color: var(--bg-main);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 15px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.moodBtn:hover {
+  border-color: var(--color-primary);
+  background-color: rgba(86, 6, 67, 0.05);
+  transform: translateY(-5px);
+}
+
+.moodEmoji {
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+.moodLabel {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.cancelTextBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin: 0 auto;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.successContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+  animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.successIcon {
+  font-size: 4rem;
+  margin-bottom: 15px;
+}
+
+.moodIcon {
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  transition: color 0.2s ease;
+}
+
+.moodBtn:hover .moodIcon {
+  color: var(--color-primary);
+}
+
+.sleepContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0 40px 0;
+}
+
+.sleepValue {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 20px;
+}
+
+.sleepSlider {
+  width: 100%;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.sleepLabels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.labelsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.labelPill {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.labelPill:hover {
+  border-color: var(--color-primary);
+}
+
+.labelPillActive {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.nextBtn {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.nextBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}

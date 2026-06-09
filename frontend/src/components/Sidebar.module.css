@@ -1,0 +1,30 @@
+.sidebarInner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.navLinks, .bottomActions {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.link, .iconBtn {
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color 0.2s;
+  display: flex;
+  justify-content: center;
+}
+
+.active {
+  color: var(--color-primary);
+}
+
+.link:hover, .iconBtn:hover {
+  color: var(--color-primary);
+}
