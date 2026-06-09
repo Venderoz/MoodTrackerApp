@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Home, BarChart2, Settings, Moon, Sun } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
