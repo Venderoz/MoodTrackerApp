@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Frown, Annoyed, Meh, Smile, Laugh, CheckCircle2 } from 'lucide-react';
-import { createEntry, getLabels } from '../api/conn';
+import { Frown, Annoyed, Meh, Smile, Laugh, CheckCircle2, Check } from 'lucide-react';
+import { createEntry, getLabels, getEntries } from '../api/conn';
+import ActivityChart from '../components/ActivityChart';
+import MoodSparklines from '../components/MoodSparklines';
+import TopTagsChart from '../components/TopTagsChart';
 import styles from './HomePage.module.css';
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [step, setStep] = useState(1);
   const [moodLevel, setMoodLevel] = useState(5);
   const [sleepHours, setSleepHours] = useState(8);
   const [selectedLabels, setSelectedLabels] = useState([]);
   const [note, setNote] = useState('');
+  const [availableLabels, setAvailableLabels] = useState([]);
+  const [entries, setEntries] = useState([]);
 
   const moodOptions = [
     { value: 1, icon: <Frown size={36} strokeWidth={1.5} />, label: 'Awful' },
@@ -20,88 +24,87 @@ export default function HomePage() {
     { value: 5, icon: <Laugh size={36} strokeWidth={1.5} />, label: 'Great' }
   ];
 
-  const [availableLabels, setAvailableLabels] = useState([]);
   useEffect(() => {
-    const fetchLabels = async () => {
+    const fetchData = async () => {
       try {
         const labelsFromDb = await getLabels();
         setAvailableLabels(labelsFromDb);
+        const entriesData = await getEntries();
+        setEntries(entriesData);
       } catch (error) {
         console.error(error);
       }
     };
-    fetchLabels();
+    fetchData();
   }, []);
+
+  // Obliczamy czy zablokować przycisk
+  const hasEntryToday = entries.some(entry => {
+    const entryDate = new Date(entry.createdAt).toDateString();
+    const today = new Date().toDateString();
+    return entryDate === today;
+  });
 
   const handleMoodSelect = (value) => {
     setMoodLevel(value);
-    setStep(2); // Idziemy do Snu
+    setStep(2);
   };
 
   const toggleLabel = (label) => {
     if (selectedLabels.includes(label)) {
-      setSelectedLabels(selectedLabels.filter(l => l !== label)); // Odznacz
+      setSelectedLabels(selectedLabels.filter(l => l !== label));
     } else {
-      setSelectedLabels([...selectedLabels, label]); // Zaznacz
+      setSelectedLabels([...selectedLabels, label]);
     }
   };
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
     try {
-      const payload = {
-        moodLevel: parseInt(moodLevel),
-        sleepDuration: parseFloat(sleepHours),
-        labelNames: selectedLabels,
-        note: note
-      };
-
-      console.log("Wysyłam do C#:", payload); // Zobacz w konsoli (F12) jak to teraz wygląda
-
+      const payload = { moodLevel: parseInt(moodLevel), sleepDuration: parseFloat(sleepHours), labelNames: selectedLabels, note: note };
       await createEntry(payload);
       setStep(5);
-
       setTimeout(() => {
         closeModal();
         window.location.reload();
       }, 2000);
-
     } catch (error) {
       console.error("[POST Error]", error);
+      alert(error.message);
     }
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    setStep(1);
-    setMoodLevel(5);
-    setSleepHours(8);
-    setSelectedLabels([]);
-    setNote('');
+    setIsModalOpen(false); setStep(1); setMoodLevel(5); setSleepHours(8); setSelectedLabels([]); setNote('');
   };
 
   return (
     <div className={styles.homeContainer}>
-
       <div className={styles.topSection}>
         <div>
           <h1 className={styles.welcomeText}>Welcome back!</h1>
           <p className={styles.subText}>Here is your mood summary.</p>
         </div>
-        <button className={styles.mainAddBtn} onClick={() => setIsModalOpen(true)}>
-          + Add new entry
+        <button
+          className={styles.mainAddBtn}
+          onClick={() => setIsModalOpen(true)}
+          disabled={hasEntryToday}
+          style={{ opacity: hasEntryToday ? 0.5 : 1, cursor: hasEntryToday ? 'not-allowed' : 'pointer' }}
+        >
+          {hasEntryToday ? (
+            <>
+              Entry added <CheckCircle2 size={18} strokeWidth={2.5} style={{ position: 'relative', top: '2px' }}/>
+            </>
+          ) : (
+            "+ Add new entry"
+          )}
         </button>
       </div>
 
       <div className={styles.chartsGrid}>
-        <div className={styles.chartBox}>
-          <h3>Activity (Calendar)</h3>
-          <div className={styles.chartPlaceholder}>Chart 1 placeholder</div>
-        </div>
-        <div className={styles.chartBox}>
-          <h3>Mood Trend</h3>
-          <div className={styles.chartPlaceholder}>Chart 2 placeholder</div>
-        </div>
+          <ActivityChart entries={entries} />
+          <MoodSparklines entries={entries} />
+          <TopTagsChart entries={entries} />
       </div>
 
       {isModalOpen && (

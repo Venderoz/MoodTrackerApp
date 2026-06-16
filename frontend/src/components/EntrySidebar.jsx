@@ -5,7 +5,7 @@ import { Star, Moon, Calendar } from 'lucide-react';
 import EntryModal from './EntryModal';
 
 export default function EntrySidebar() {
-  const [recentMoods, setRecentMoods] = useState([]);
+  const [recentEntries, setRecentEntries] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ export default function EntrySidebar() {
       try {
         const data = await getEntries();
         const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setRecentMoods(sortedData.slice(0, 3));
+        setRecentEntries(sortedData.slice(0, 3));
       } catch (e) {
         console.error(e);
       }
@@ -27,13 +27,7 @@ export default function EntrySidebar() {
   };
 
   const getMoodColor = (level) => {
-    const colors = {
-      1: '#636e72',
-      2: '#0984e3',
-      3: '#fdcb6e',
-      4: '#00b894',
-      5: '#009432'
-    };
+    const colors = { 1: '#636e72', 2: '#0984e3', 3: '#fdcb6e', 4: '#00b894', 5: '#009432' };
     return colors[level] || 'var(--color-primary)';
   };
 
@@ -42,40 +36,33 @@ export default function EntrySidebar() {
       <h3 className={styles.title}>Recent Activity</h3>
 
       <div className={styles.list}>
-        {recentMoods.map(mood => (
+        {recentEntries.map(entry => (
           <div
-            key={mood.id}
+            key={entry.id}
             className={styles.itemCard}
-            style={{ borderLeftColor: getMoodColor(mood.moodLevel) }}
-            onClick={() => setSelectedEntry(mood)} // Po kliknięciu zapisujemy wpis do stanu
+            style={{ borderLeftColor: getMoodColor(entry.moodLevel) }}
+            onClick={() => setSelectedEntry(entry)}
           >
-            {/* Nagłówek kafelka: Ocena i Data */}
             <div className={styles.cardHeader}>
-              <div
-                className={styles.ratingBadge}
-                style={{ color: getMoodColor(mood.moodLevel) }}
-              >
-                <Star size={16} fill="currentColor" /> {mood.moodLevel}/5
+              <div className={styles.ratingBadge} style={{ color: getMoodColor(entry.moodLevel) }}>
+                <Star size={16} fill="currentColor" /> {entry.moodLevel}/5
               </div>
               <div className={styles.dateText}>
-                <Calendar size={12} /> {formatDate(mood.createdAt)}
+                <Calendar size={12} /> {formatDate(entry.createdAt)}
               </div>
             </div>
 
-            {/* Informacja o snie (jeśli istnieje) */}
-            {mood.sleepDuration > 0 && (
+            {entry.sleepDuration > 0 && (
               <div className={styles.sleepInfo}>
-                <Moon size={14} /> {mood.sleepDuration}h of sleep
+                <Moon size={14} /> {entry.sleepDuration}h of sleep
               </div>
             )}
 
-            {/* Notatka (z ucinaniem tekstu) */}
-            <p className={styles.noteText}>{mood.note || <span className={styles.emptyNote}>No notes...</span>}</p>
+            <p className={styles.noteText}>{entry.note || <span className={styles.emptyNote}>No notes...</span>}</p>
 
-            {/* Etykiety */}
-            {mood.labels && mood.labels.length > 0 && (
+            {entry.labels && entry.labels.length > 0 && (
               <div className={styles.labelsWrapper}>
-                {mood.labels.map(label => (
+                {entry.labels.map(label => (
                   <span
                     key={label.id}
                     className={styles.labelBadge}
@@ -96,12 +83,10 @@ export default function EntrySidebar() {
         <EntryModal
           entry={selectedEntry}
           onClose={() => setSelectedEntry(null)}
-          // 1. Zmieniamy sygnaturę by odbierała zaaktualizowany wpis z modala
-          onUpdate={(updatedEntry) => { 
-            // 2. Podmieniamy TYLKO edytowany wpis w aktualnym stanie, bez uderzania do bazy!
-            setRecentMoods(prevMoods => 
-              prevMoods.map(mood => 
-                mood.id === updatedEntry.id ? updatedEntry : mood
+          onUpdate={(updatedEntry) => {
+            setRecentEntries(prevEntries =>
+              prevEntries.map(entry =>
+                entry.id === updatedEntry.id ? updatedEntry : entry
               )
             );
           }}

@@ -9,9 +9,9 @@ export default function DashboardLayout() {
       <aside className={styles.leftColumn}>
         <Sidebar />
       </aside>
-      
+
       <main className={styles.mainColumn}>
-        <Outlet /> {/* Tu React Router wstrzyknie HomePage lub AnalyticsPage */}
+        <Outlet />
       </main>
 
       <aside className={styles.rightColumn}>

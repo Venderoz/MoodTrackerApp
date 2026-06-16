@@ -41,11 +41,17 @@ namespace backend.Services
                     newEntry.Labels.Add(label);
                 }
             }
-
-            _context.Entries.Add(newEntry);
-            await _context.SaveChangesAsync();
-
-            return newEntry;
+            try
+            {
+                _context.Entries.Add(newEntry);
+                await _context.SaveChangesAsync();
+                return newEntry;
+            }
+            catch (DbUpdateException ex)
+                when (ex.InnerException != null && ex.InnerException.Message.Contains("Double entry error"))
+            {
+                throw new InvalidOperationException("Entry was already added today!");
+            }
         }
 
         public async Task<Entry?> UpdateEntry(int id, CreateEntryDto dto)
