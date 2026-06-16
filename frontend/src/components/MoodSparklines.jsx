@@ -3,6 +3,22 @@ import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
 import { Smile, Moon } from 'lucide-react';
 import styles from './MoodSparklines.module.css';
 
+const MiniTooltip = ({ active, payload }) => {
+        if (active && payload && payload.length) {
+            const dataPoint = payload[0].payload;
+            const isSleep = payload[0].dataKey === 'sleep';
+            return (
+                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                    <span style={{ color: 'var(--text-secondary)', marginRight: '6px' }}>{dataPoint.dateStr}:</span>
+                    <strong style={{ color: payload[0].color }}>
+                        {dataPoint[payload[0].dataKey]} {isSleep ? 'h' : '/ 5'}
+                    </strong>
+                </div>
+            );
+        }
+        return null;
+    };
+
 export default function MoodSparklines({ entries }) {
     const processData = () => {
         const sorted = [...entries].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -42,21 +58,6 @@ export default function MoodSparklines({ entries }) {
     };
 
     const frequentMood = getMostFrequentMood(data);
-    const MiniTooltip = ({ active, payload }) => {
-        if (active && payload && payload.length) {
-            const dataPoint = payload[0].payload;
-            const isSleep = payload[0].dataKey === 'sleep';
-            return (
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                    <span style={{ color: 'var(--text-secondary)', marginRight: '6px' }}>{dataPoint.dateStr}:</span>
-                    <strong style={{ color: payload[0].color }}>
-                        {dataPoint[payload[0].dataKey]} {isSleep ? 'h' : '/ 5'}
-                    </strong>
-                </div>
-            );
-        }
-        return null;
-    };
 
     return (
         <div className={styles.sparklinesContainer}>
