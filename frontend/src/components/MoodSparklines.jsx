@@ -1,4 +1,3 @@
-import React from 'react';
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
 import { Smile, Moon } from 'lucide-react';
 import styles from './MoodSparklines.module.css';
