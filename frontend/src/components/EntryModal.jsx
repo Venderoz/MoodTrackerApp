@@ -4,18 +4,15 @@ import { Star, X } from 'lucide-react';
 import styles from './EntryModal.module.css';
 
 export default function EntryModal({ entry, onClose, onUpdate }) {
-  // 1. Inicjujemy stan formularza danymi z klikniętego kafelka
   const [moodLevel, setMoodLevel] = useState(entry.moodLevel);
   const [sleepHours, setSleepHours] = useState(entry.sleepDuration || 0);
   const [note, setNote] = useState(entry.note || '');
-  
-  // Przekształcamy obiekty etykiet z C# (np. {id: 1, name: 'Work'}) w płaską tablicę stringów do zaznaczania
+
   const initialLabels = entry.labels ? entry.labels.map(l => l.name) : [];
   const [selectedLabels, setSelectedLabels] = useState(initialLabels);
-  
+
   const [availableLabels, setAvailableLabels] = useState([]);
 
-  // 2. Pobieramy wszystkie możliwe etykiety do wyboru
   useEffect(() => {
     const fetchLabels = async () => {
       try {
@@ -26,7 +23,6 @@ export default function EntryModal({ entry, onClose, onUpdate }) {
     fetchLabels();
   }, []);
 
-  // Funkcja zmiany kolorów dla wizualnego feedbacku
   const getMoodColor = (level) => {
     const colors = { 1: '#636e72', 2: '#0984e3', 3: '#fdcb6e', 4: '#00b894', 5: '#009432' };
     return colors[level] || 'var(--color-primary)';
@@ -40,20 +36,19 @@ export default function EntryModal({ entry, onClose, onUpdate }) {
     }
   };
 
-  // 3. Wysyłamy zaktualizowany DTO do backendu
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { 
-        moodLevel: parseInt(moodLevel), 
-        sleepDuration: parseFloat(sleepHours), 
-        labelNames: selectedLabels, 
-        note: note 
+      const payload = {
+        moodLevel: parseInt(moodLevel),
+        sleepDuration: parseFloat(sleepHours),
+        labelNames: selectedLabels,
+        note: note
       };
 
-      const updatedEntry = await updateEntry(entry.id, payload); 
-      onUpdate(updatedEntry); 
-      onClose();  
+      const updatedEntry = await updateEntry(entry.id, payload);
+      onUpdate(updatedEntry);
+      onClose();
     } catch (error) {
       console.error("[PUT Error]", error);
     }
@@ -67,7 +62,6 @@ export default function EntryModal({ entry, onClose, onUpdate }) {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.formContainer}>
-          {/* Edycja Nastroju */}
           <div className={styles.formGroup}>
             <label>Mood Level</label>
             <div className={styles.moodSelector}>
@@ -76,7 +70,7 @@ export default function EntryModal({ entry, onClose, onUpdate }) {
                   key={level}
                   type="button"
                   className={styles.moodBtn}
-                  style={{ 
+                  style={{
                     backgroundColor: moodLevel === level ? getMoodColor(level) : 'transparent',
                     color: moodLevel === level ? '#fff' : getMoodColor(level),
                     borderColor: getMoodColor(level)
@@ -90,10 +84,9 @@ export default function EntryModal({ entry, onClose, onUpdate }) {
             </div>
           </div>
 
-          {/* Edycja Snu */}
           <div className={styles.formGroup}>
             <label>Sleep Duration ({sleepHours}h)</label>
-            <input 
+            <input
               type="range" min="0" max="16" step="0.5"
               value={sleepHours}
               onChange={(e) => setSleepHours(e.target.value)}
@@ -101,16 +94,15 @@ export default function EntryModal({ entry, onClose, onUpdate }) {
             />
           </div>
 
-          {/* Edycja Etykiet */}
           <div className={styles.formGroup}>
             <label>Labels</label>
             <div className={styles.labelsGrid}>
               {availableLabels.map(label => (
-                <button 
+                <button
                   key={label.id}
                   type="button"
                   onClick={() => toggleLabel(label.name)}
-                  style={{ 
+                  style={{
                     backgroundColor: selectedLabels.includes(label.name) ? (label.colorHex || 'var(--color-primary)') : 'transparent',
                     borderColor: label.colorHex || 'var(--color-primary)',
                     color: selectedLabels.includes(label.name) ? '#fff' : 'var(--text-primary)'
@@ -123,11 +115,10 @@ export default function EntryModal({ entry, onClose, onUpdate }) {
             </div>
           </div>
 
-          {/* Edycja Notatki */}
           <div className={styles.formGroup}>
             <label>Note</label>
-            <textarea 
-              value={note} 
+            <textarea
+              value={note}
               onChange={(e) => setNote(e.target.value)}
               className={styles.textArea}
               placeholder="Update your thoughts..."

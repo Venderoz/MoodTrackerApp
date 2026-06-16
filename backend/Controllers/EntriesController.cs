@@ -25,8 +25,16 @@ public class EntriesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateEntryDto dto)
     {
-        var createdEntry = await _entriesService.CreateEntry(dto);
-        return Ok(createdEntry);
+        try
+        {
+            var createdEntry = await _entriesService.CreateEntry(dto);
+            return Ok(createdEntry);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        
     }
 
     [HttpPut("{id}")]
