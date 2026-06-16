@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Frown, Annoyed, Meh, Smile, Laugh, CheckCircle2, Check } from 'lucide-react';
 import { createEntry, getLabels, getEntries } from '../api/conn';
 import ActivityChart from '../components/ActivityChart';
 import MoodSparklines from '../components/MoodSparklines';
