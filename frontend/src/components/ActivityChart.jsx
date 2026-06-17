@@ -60,7 +60,7 @@ export default function ActivityChart({ entries }) {
                     renderBlock={(block, activity) =>
                         React.cloneElement(block, {
                             'data-tooltip-id': 'calendar-tooltip',
-                            'data-tooltip-content': `${activity.date}: ${activity.count > 0 ? 'Wpis dodany ✅' : 'Brak wpisu'}`,
+                            'data-tooltip-content': `${activity.date}: ${activity.count > 0 ? 'Entry added' : 'No entry'}`,
                         })
                     }
                 />

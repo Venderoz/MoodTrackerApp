@@ -12,22 +12,22 @@ import {
 import styles from './MoodTrendChart.module.css';
 
 const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div style={{ background: 'var(--bg-card)', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-secondary)', fontSize: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '4px' }}>
-                        {label}
+    if (active && payload && payload.length) {
+        return (
+            <div style={{ background: 'var(--bg-card)', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                <p style={{ margin: '0 0 8px 0', color: 'var(--text-secondary)', fontSize: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '4px' }}>
+                    {label}
+                </p>
+                {payload.map((item, index) => (
+                    <p key={index} style={{ margin: '4px 0', color: item.color, fontWeight: 'bold', fontSize: '13px' }}>
+                        {item.name}: {item.value} {item.dataKey === 'sleep' ? 'h' : '/ 5'}
                     </p>
-                    {payload.map((item, index) => (
-                        <p key={index} style={{ margin: '4px 0', color: item.color, fontWeight: 'bold', fontSize: '13px' }}>
-                            {item.name}: {item.value} {item.dataKey === 'sleep' ? 'h' : '/ 5'}
-                        </p>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
+                ))}
+            </div>
+        );
+    }
+    return null;
+};
 
 export default function MoodTrendChart({ entries }) {
     const processData = () => {
@@ -77,7 +77,7 @@ export default function MoodTrendChart({ entries }) {
                             <YAxis
                                 yAxisId="right"
                                 orientation="right"
-                                domain={[0, 16]} // Usztywniamy skalę snu dla lepszych proporcji
+                                domain={[0, 16]}
                                 tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
                                 axisLine={false}
                                 tickLine={false}

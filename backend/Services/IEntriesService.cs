@@ -5,8 +5,10 @@ namespace backend.Services
 {
     public interface IEntriesService
     {
-        Task<IEnumerable<Entry>> GetAllEntriesWithLabels();
-        Task<Entry> CreateEntry(CreateEntryDto dto);
-        Task<Entry?> UpdateEntry(int id, CreateEntryDto dto);
+        Task<IEnumerable<Entry>> GetAllEntriesWithLabelsAsync();
+        Task<Entry> CreateEntryAsync(CreateEntryDto dto);
+        Task<Entry?> UpdateEntryAsync(int id, CreateEntryDto dto);
+        Task<DashboardStatsDto> GetDashboardStatsAsync();
+        Task<IEnumerable<Entry>> GetFilteredEntriesAsync(EntryFilterDto filters);
     }
 }

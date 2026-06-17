@@ -1,6 +1,5 @@
-﻿using backend.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using backend.Services;
 
 namespace backend.Controllers
 {
@@ -8,20 +7,17 @@ namespace backend.Controllers
     [ApiController]
     public class LabelsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ILabelsService _labelsService;
 
-        public LabelsController(AppDbContext context)
+        public LabelsController(ILabelsService labelsService)
         {
-            _context = context;
+            _labelsService = labelsService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetLabels()
         {
-            var labels = await _context.CustomLabels
-                .Where(l => l.UserId == 1)
-                .ToListAsync();
-
+            var labels = await _labelsService.GetLabelsForUserAsync();
             return Ok(labels);
         }
     }

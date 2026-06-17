@@ -3,61 +3,22 @@ import { Smile, Moon } from 'lucide-react';
 import styles from './MoodSparklines.module.css';
 
 const MiniTooltip = ({ active, payload }) => {
-        if (active && payload && payload.length) {
-            const dataPoint = payload[0].payload;
-            const isSleep = payload[0].dataKey === 'sleep';
-            return (
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                    <span style={{ color: 'var(--text-secondary)', marginRight: '6px' }}>{dataPoint.dateStr}:</span>
-                    <strong style={{ color: payload[0].color }}>
-                        {dataPoint[payload[0].dataKey]} {isSleep ? 'h' : '/ 5'}
-                    </strong>
-                </div>
-            );
-        }
-        return null;
-    };
+    if (active && payload && payload.length) {
+        const dataPoint = payload[0].payload;
+        const isSleep = payload[0].dataKey === 'sleep';
+        return (
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <span style={{ color: 'var(--text-secondary)', marginRight: '6px' }}>{dataPoint.dateStr}:</span>
+                <strong style={{ color: payload[0].color }}>
+                    {dataPoint[payload[0].dataKey]} {isSleep ? 'h' : '/ 5'}
+                </strong>
+            </div>
+        );
+    }
+    return null;
+};
 
-export default function MoodSparklines({ entries }) {
-    const processData = () => {
-        const sorted = [...entries].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        const dailyData = {};
-        sorted.forEach(entry => {
-            const dateStr = new Date(entry.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-            dailyData[dateStr] = {
-                dateStr,
-                mood: entry.moodLevel,
-                sleep: entry.sleepDuration || 0
-            };
-        });
-        return Object.values(dailyData).slice(-7);
-    };
-
-    const data = processData();
-    const avgSleep = data.length ? (data.reduce((acc, curr) => acc + curr.sleep, 0) / data.length).toFixed(1) : 0;
-
-    const getMostFrequentMood = (dataArr) => {
-        if (!dataArr || dataArr.length === 0) return 0;
-
-        const counts = {};
-        let maxCount = 0;
-        let mostFrequent = dataArr[0].mood;
-
-        dataArr.forEach(item => {
-            const mood = item.mood;
-            counts[mood] = (counts[mood] || 0) + 1;
-
-            if (counts[mood] > maxCount) {
-                maxCount = counts[mood];
-                mostFrequent = mood;
-            }
-        });
-
-        return mostFrequent;
-    };
-
-    const frequentMood = getMostFrequentMood(data);
-
+export default function MoodSparklines({ data, frequentMood, avgSleep }) {
     return (
         <div className={styles.sparklinesContainer}>
             <div className={styles.sparkCard}>

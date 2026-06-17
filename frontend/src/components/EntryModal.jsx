@@ -1,27 +1,15 @@
-import { useState, useEffect } from 'react';
-import { updateEntry, getLabels } from '../api/conn';
+import { useState } from 'react';
+import { updateEntry } from '../api/conn';
 import { Star, X } from 'lucide-react';
 import styles from './EntryModal.module.css';
 
-export default function EntryModal({ entry, onClose, onUpdate }) {
+export default function EntryModal({ entry, onClose, onUpdate, availableLabels }) {
   const [moodLevel, setMoodLevel] = useState(entry.moodLevel);
   const [sleepHours, setSleepHours] = useState(entry.sleepDuration || 0);
   const [note, setNote] = useState(entry.note || '');
 
   const initialLabels = entry.labels ? entry.labels.map(l => l.name) : [];
   const [selectedLabels, setSelectedLabels] = useState(initialLabels);
-
-  const [availableLabels, setAvailableLabels] = useState([]);
-
-  useEffect(() => {
-    const fetchLabels = async () => {
-      try {
-        const labelsFromDb = await getLabels();
-        setAvailableLabels(labelsFromDb);
-      } catch (error) { console.error(error); }
-    };
-    fetchLabels();
-  }, []);
 
   const getMoodColor = (level) => {
     const colors = { 1: '#636e72', 2: '#0984e3', 3: '#fdcb6e', 4: '#00b894', 5: '#009432' };
@@ -53,6 +41,7 @@ export default function EntryModal({ entry, onClose, onUpdate }) {
       console.error("[PUT Error]", error);
     }
   };
+
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>

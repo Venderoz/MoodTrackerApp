@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Frown, Annoyed, Meh, Smile, Laugh, CheckCircle2 } from 'lucide-react';
-import { createEntry, getLabels, getEntries } from '../api/conn';
+import { createEntry, getDashboardStats } from '../api/conn';
 import ActivityChart from '../components/ActivityChart';
 import MoodSparklines from '../components/MoodSparklines';
 import TopTagsChart from '../components/TopTagsChart';
@@ -13,8 +14,10 @@ export default function HomePage() {
   const [sleepHours, setSleepHours] = useState(8);
   const [selectedLabels, setSelectedLabels] = useState([]);
   const [note, setNote] = useState('');
-  const [availableLabels, setAvailableLabels] = useState([]);
-  const [entries, setEntries] = useState([]);
+
+  const { entries, labels: availableLabels, refreshData, refreshCount } = useOutletContext();
+
+  const [dashboardStats, setDashboardStats] = useState(null);
 
   const moodOptions = [
     { value: 1, icon: <Frown size={36} strokeWidth={1.5} />, label: 'Awful' },
@@ -24,21 +27,22 @@ export default function HomePage() {
     { value: 5, icon: <Laugh size={36} strokeWidth={1.5} />, label: 'Great' }
   ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const labelsFromDb = await getLabels();
-        setAvailableLabels(labelsFromDb);
-        const entriesData = await getEntries();
-        setEntries(entriesData);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
+  const fetchStats = useCallback(async () => {
+    try {
+      const statsData = await getDashboardStats();
+      setDashboardStats({ ...statsData });
+    } catch (error) {
+      console.error(error);
+    }
   }, []);
 
-  // Obliczamy czy zablokować przycisk
+  useEffect(() => {
+    const loadStats = async () => {
+      await fetchStats();
+    };
+    loadStats();
+  }, [fetchStats, refreshCount]);
+
   const hasEntryToday = entries.some(entry => {
     const entryDate = new Date(entry.createdAt).toDateString();
     const today = new Date().toDateString();
@@ -63,10 +67,12 @@ export default function HomePage() {
     try {
       const payload = { moodLevel: parseInt(moodLevel), sleepDuration: parseFloat(sleepHours), labelNames: selectedLabels, note: note };
       await createEntry(payload);
+
+      await refreshData();
+
       setStep(5);
       setTimeout(() => {
         closeModal();
-        window.location.reload();
       }, 2000);
     } catch (error) {
       console.error("[POST Error]", error);
@@ -93,7 +99,7 @@ export default function HomePage() {
         >
           {hasEntryToday ? (
             <>
-              Entry added <CheckCircle2 size={18} strokeWidth={2.5} style={{ position: 'relative', top: '2px' }}/>
+              Entry added <CheckCircle2 size={18} strokeWidth={2.5} style={{ position: 'relative', top: '2px' }} />
             </>
           ) : (
             "+ Add new entry"
@@ -102,9 +108,26 @@ export default function HomePage() {
       </div>
 
       <div className={styles.chartsGrid}>
-          <ActivityChart entries={entries} />
-          <MoodSparklines entries={entries} />
-          <TopTagsChart entries={entries} />
+        <ActivityChart entries={entries} key={`activity-${refreshCount}`} />
+
+        {dashboardStats ? (
+          <>
+            <MoodSparklines
+              key={`sparklines-${refreshCount}`}
+              data={dashboardStats.sparklines}
+              frequentMood={dashboardStats.frequentMood}
+              avgSleep={dashboardStats.avgSleep}
+            />
+            <TopTagsChart
+              key={`tags-${refreshCount}`}
+              data={dashboardStats.topTags}
+            />
+          </>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-secondary)' }}>
+            Loading stats...
+          </div>
+        )}
       </div>
 
       {isModalOpen && (
@@ -141,14 +164,14 @@ export default function HomePage() {
                   <div className={styles.sleepValue}>{sleepHours} h</div>
                   <input
                     type="range"
-                    min="0" max="24" step="0.1"
+                    min="0" max="16" step="0.1"
                     value={sleepHours}
                     onChange={(e) => setSleepHours(e.target.value)}
                     className={styles.sleepSlider}
                   />
                   <div className={styles.sleepLabels}>
                     <span>0 h</span>
-                    <span>24 h</span>
+                    <span>16 h</span>
                   </div>
                 </div>
 

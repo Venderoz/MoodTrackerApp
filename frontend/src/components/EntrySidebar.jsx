@@ -1,25 +1,16 @@
-import { useState, useEffect } from 'react';
-import { getEntries } from '../api/conn';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './EntrySidebar.module.css';
 import { Star, Moon, Calendar } from 'lucide-react';
 import EntryModal from './EntryModal';
 
-export default function EntrySidebar() {
-  const [recentEntries, setRecentEntries] = useState([]);
+export default function EntrySidebar({ entries, availableLabels, onRefresh }) {
   const [selectedEntry, setSelectedEntry] = useState(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const loadRecent = async () => {
-      try {
-        const data = await getEntries();
-        const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setRecentEntries(sortedData.slice(0, 3));
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadRecent();
-  }, []);
+  const recentEntries = entries && entries.length > 0
+    ? [...entries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3)
+    : [];
 
   const formatDate = (dateString) => {
     const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -77,18 +68,22 @@ export default function EntrySidebar() {
         ))}
       </div>
 
-      <button className={styles.seeMoreBtn}>See full history</button>
+      <button 
+        className={styles.seeMoreBtn} 
+        onClick={() => navigate('/analytics')}
+      >
+        See full history
+      </button>
 
       {selectedEntry && (
         <EntryModal
           entry={selectedEntry}
+          availableLabels={availableLabels}
           onClose={() => setSelectedEntry(null)}
-          onUpdate={(updatedEntry) => {
-            setRecentEntries(prevEntries =>
-              prevEntries.map(entry =>
-                entry.id === updatedEntry.id ? updatedEntry : entry
-              )
-            );
+          onUpdate={async () => {
+            if (onRefresh) {
+              await onRefresh();
+            }
           }}
         />
       )}
