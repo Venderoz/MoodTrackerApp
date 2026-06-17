@@ -60,3 +60,24 @@ export const updateEntry = async (id, payload) => {
   if (!response.ok) throw new Error(`Failed to update entry with ID: ${id}`);
   return await response.json(); 
 };
+
+export const getDashboardStats = async () => {
+  const response = await fetch(`${API_URL}/dashboard-stats`);
+  if (!response.ok) throw new Error('Failed to fetch dashboard stats');
+  return await response.json();
+};
+
+export const getFilteredEntries = async (filters = {}) => {
+  const params = new URLSearchParams();
+  
+  if (filters.startDate) params.append('startDate', filters.startDate);
+  if (filters.endDate) params.append('endDate', filters.endDate);
+  
+  if (filters.labelNames && filters.labelNames.length > 0) {
+    filters.labelNames.forEach(name => params.append('labelNames', name));
+  }
+
+  const response = await fetch(`${API_URL}/analysis?${params.toString()}`);
+  if (!response.ok) throw new Error('Failed to fetch filtered entries');
+  return await response.json();
+};

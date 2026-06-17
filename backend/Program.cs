@@ -20,6 +20,7 @@ builder.Services.AddCors(options =>
     }));
 
 builder.Services.AddScoped<IEntriesService, EntriesService>();
+builder.Services.AddScoped<ILabelsService, LabelsService>();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;

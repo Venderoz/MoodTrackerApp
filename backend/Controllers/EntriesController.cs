@@ -18,23 +18,15 @@ public class EntriesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        var entries = await _entriesService.GetAllEntriesWithLabels();
+        var entries = await _entriesService.GetAllEntriesWithLabelsAsync();
         return Ok(entries);
     }
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateEntryDto dto)
     {
-        try
-        {
-            var createdEntry = await _entriesService.CreateEntry(dto);
-            return Ok(createdEntry);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        
+        var createdEntry = await _entriesService.CreateEntryAsync(dto);
+        return Ok(createdEntry);
     }
 
     [HttpPut("{id}")]
@@ -42,11 +34,25 @@ public class EntriesController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updatedEntry = await _entriesService.UpdateEntry(id, dto);
+        var updatedEntry = await _entriesService.UpdateEntryAsync(id, dto);
         if (updatedEntry == null)
         {
             return NotFound($"No entry with id: {id}");
         }
         return Ok(updatedEntry);
+    }
+
+    [HttpGet("dashboard-stats")]
+    public async Task<IActionResult> GetDashboardStats()
+    {
+        var stats = await _entriesService.GetDashboardStatsAsync();
+        return Ok(stats);
+    }
+
+    [HttpGet("analysis")]
+    public async Task<IActionResult> GetForAnalysis([FromQuery] EntryFilterDto filters)
+    {
+        var entries = await _entriesService.GetFilteredEntriesAsync(filters);
+        return Ok(entries);
     }
 }
