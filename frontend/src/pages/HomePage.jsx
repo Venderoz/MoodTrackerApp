@@ -88,7 +88,7 @@ export default function HomePage() {
     <div className={styles.homeContainer}>
       <div className={styles.topSection}>
         <div>
-          <h1 className={styles.welcomeText}>Welcome back!</h1>
+          <h1 className={styles.welcomeText}>Welcome back, {localStorage.getItem('firstName')}!</h1>
           <p className={styles.subText}>Here is your mood summary.</p>
         </div>
         <button

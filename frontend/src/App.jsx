@@ -5,7 +5,9 @@ import DashboardLayout from './components/DashboardLayout';
 import HomePage from './pages/HomePage';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem('token');
+  });
 
   if (!isAuthenticated) {
     return <AuthPage onLogin={() => setIsAuthenticated(true)} />;

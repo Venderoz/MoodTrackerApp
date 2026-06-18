@@ -2,6 +2,24 @@ const API_URL = '/api/entries';
 const AUTH_URL = '/api/auth';
 const LABELS_URL = '/api/labels';
 
+const fetchWithAuth = async (url, options = {}) => {
+  const token = localStorage.getItem('token');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+
+  const response = await fetch(url, { ...options, headers: { ...headers, ...options.headers } });
+  if (response.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('firstName');
+    window.location.reload();
+    throw new Error('Session expired. Please log in again.');
+  }
+
+  return response;
+};
+
 export const registerUser = async (payload) => {
   const response = await fetch(`${AUTH_URL}/register`, {
     method: 'POST',
@@ -10,7 +28,6 @@ export const registerUser = async (payload) => {
   });
   
   if (!response.ok) throw new Error('Registration failed');
-  
   const text = await response.text();
   return text ? JSON.parse(text) : null; 
 };
@@ -22,26 +39,29 @@ export const loginUser = async (payload) => {
     body: JSON.stringify(payload),
   });
   
-  if (!response.ok) throw new Error('Login failed');
+  if (!response.ok) {
+     if (response.status === 401) throw new Error('Invalid credentials');
+     throw new Error('Login failed');
+  }
   
   const text = await response.text();
   return text ? JSON.parse(text) : null; 
 };
 
 export const getEntries = async () => {
-  const response = await fetch(API_URL);
+  const response = await fetchWithAuth(API_URL);
   if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
   return await response.json();
 };
 
 export const getLabels = async () => {
-  const response = await fetch(LABELS_URL);
+  const response = await fetchWithAuth(LABELS_URL);
   if (!response.ok) throw new Error('Failed to fetch labels');
   return await response.json();
 };
 
 export const createEntry = async (payload) => {
-  const response = await fetch(API_URL, {
+  const response = await fetchWithAuth(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -52,9 +72,9 @@ export const createEntry = async (payload) => {
 };
 
 export const updateEntry = async (id, payload) => {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await fetchWithAuth(`${API_URL}/${id}`, {
     method: 'PUT',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
   if (!response.ok) throw new Error(`Failed to update entry with ID: ${id}`);
@@ -62,7 +82,7 @@ export const updateEntry = async (id, payload) => {
 };
 
 export const getDashboardStats = async () => {
-  const response = await fetch(`${API_URL}/dashboard-stats`);
+  const response = await fetchWithAuth(`${API_URL}/dashboard-stats`);
   if (!response.ok) throw new Error('Failed to fetch dashboard stats');
   return await response.json();
 };
@@ -77,7 +97,7 @@ export const getFilteredEntries = async (filters = {}) => {
     filters.labelNames.forEach(name => params.append('labelNames', name));
   }
 
-  const response = await fetch(`${API_URL}/analysis?${params.toString()}`);
+  const response = await fetchWithAuth(`${API_URL}/analysis?${params.toString()}`);
   if (!response.ok) throw new Error('Failed to fetch filtered entries');
   return await response.json();
 };

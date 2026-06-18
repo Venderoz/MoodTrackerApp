@@ -3,32 +3,56 @@ using backend.DTOs;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Security.Claims;
 
 namespace backend.Services
 {
     public class EntriesService : IEntriesService
     {
         private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public EntriesService(AppDbContext context)
+        public EntriesService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdStr, out int userId))
+            {
+                return userId;
+            }
+            throw new UnauthorizedAccessException("Invalid or missing user token.");
         }
 
         public async Task<IEnumerable<Entry>> GetAllEntriesWithLabelsAsync()
         {
+            var userId = GetCurrentUserId();
             return await _context.Entries
                 .AsNoTracking()
                 .Include(e => e.Labels)
-                .Where(e => e.UserId == 1)
+                .Where(e => e.UserId == userId)
                 .ToListAsync();
         }
 
-        public async Task<Entry> CreateEntryAsync(CreateEntryDto dto)
+        public async Task<Entry?> CreateEntryAsync(CreateEntryDto dto)
         {
+            var userId = GetCurrentUserId();
+            var today = DateTime.UtcNow.Date;
+            var hasEntryToday = await _context.Entries
+                .AnyAsync(e => e.UserId == userId && e.CreatedAt >= today);
+
+            if (hasEntryToday)
+            {
+                return null;
+            }
+
             var newEntry = new Entry
             {
-                UserId = 1,
+                UserId = userId,
                 MoodLevel = dto.MoodLevel,
                 SleepDuration = dto.SleepDuration,
                 Note = dto.Note
@@ -37,7 +61,7 @@ namespace backend.Services
             if (dto.LabelNames != null && dto.LabelNames.Any())
             {
                 var selectedLabels = await _context.CustomLabels
-                    .Where(label => dto.LabelNames.Contains(label.Name) && label.UserId == 1)
+                    .Where(label => dto.LabelNames.Contains(label.Name) && label.UserId == userId)
                     .ToListAsync();
 
                 foreach (var label in selectedLabels)
@@ -45,24 +69,18 @@ namespace backend.Services
                     newEntry.Labels.Add(label);
                 }
             }
-            try
-            {
-                _context.Entries.Add(newEntry);
-                await _context.SaveChangesAsync();
-                return newEntry;
-            }
-            catch (DbUpdateException ex)
-                when (ex.InnerException != null && ex.InnerException.Message.Contains("Double entry error"))
-            {
-                throw new InvalidOperationException("Entry was already added today!");
-            }
+
+            _context.Entries.Add(newEntry);
+            await _context.SaveChangesAsync();
+            return newEntry;
         }
 
         public async Task<Entry?> UpdateEntryAsync(int id, CreateEntryDto dto)
         {
+            var userId = GetCurrentUserId();
             var existingEntry = await _context.Entries
                 .Include(e => e.Labels)
-                .FirstOrDefaultAsync(e => e.Id == id && e.UserId == 1);
+                .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
 
             if (existingEntry == null) return null;
 
@@ -76,7 +94,7 @@ namespace backend.Services
             if (dto.LabelNames != null && dto.LabelNames.Any())
             {
                 var newLabels = await _context.CustomLabels
-                    .Where(label => dto.LabelNames.Contains(label.Name) && label.UserId == 1)
+                    .Where(label => dto.LabelNames.Contains(label.Name) && label.UserId == userId)
                     .ToListAsync();
                 foreach (var label in newLabels)
                 {
@@ -87,13 +105,14 @@ namespace backend.Services
             return existingEntry;
         }
 
-        public async Task<DashboardStatsDto> GetDashboardStatsAsync()
+        public async Task<ChartDataDto> GetDashboardStatsAsync()
         {
+            var userId = GetCurrentUserId();
             var sevenDaysAgo = DateTime.UtcNow.Date.AddDays(-7);
 
             var recentEntries = await _context.Entries
                 .AsNoTracking()
-                .Where(e => e.CreatedAt >= sevenDaysAgo && e.UserId == 1)
+                .Where(e => e.CreatedAt >= sevenDaysAgo && e.UserId == userId)
                 .OrderBy(e => e.CreatedAt)
                 .ToListAsync();
 
@@ -110,14 +129,14 @@ namespace backend.Services
 
             var sparklines = recentEntries.Select(e => new SparklineDataDto
             {
-                DateStr = e.CreatedAt.Value.ToString("MMM d", new CultureInfo("en-US")),
+                DateStr = (e.CreatedAt ?? DateTime.UtcNow).ToString("MMM d", new CultureInfo("en-US")),
                 Mood = e.MoodLevel,
                 Sleep = (double)(e.SleepDuration ?? 0)
             }).ToList();
 
             var topTags = await _context.Entries
                 .AsNoTracking()
-                .Where(e => e.UserId == 1)
+                .Where(e => e.UserId == userId)
                 .SelectMany(e => e.Labels)
                 .GroupBy(l => new { l.Name, l.ColorHex })
                 .Select(g => new TopTagDto
@@ -130,7 +149,7 @@ namespace backend.Services
                 .Take(5)
                 .ToListAsync();
 
-            return new DashboardStatsDto
+            return new ChartDataDto
             {
                 Sparklines = sparklines,
                 FrequentMood = frequentMood,
@@ -141,10 +160,11 @@ namespace backend.Services
 
         public async Task<IEnumerable<Entry>> GetFilteredEntriesAsync(EntryFilterDto filters)
         {
+            var userId = GetCurrentUserId();
             var query = _context.Entries
                 .AsNoTracking()
                 .Include(e => e.Labels)
-                .Where(e => e.UserId == 1)
+                .Where(e => e.UserId == userId)
                 .AsQueryable();
 
             if (filters.StartDate.HasValue)
