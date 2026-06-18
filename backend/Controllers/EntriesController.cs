@@ -1,9 +1,11 @@
 ﻿using backend.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class EntriesController : ControllerBase

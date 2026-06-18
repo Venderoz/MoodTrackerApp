@@ -1,9 +1,21 @@
 using backend.Data;
 using backend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var secretBytes = new byte[64];
+RandomNumberGenerator.Fill(secretBytes);
+var dynamicSecret = Convert.ToBase64String(secretBytes);
+
+builder.Configuration["JwtSettings:SecretKey"] = dynamicSecret;
+builder.Configuration["JwtSettings:Issuer"] = "MoodTrackerAPI";
+builder.Configuration["JwtSettings:Audience"] = "MoodTrackerReactClient";
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -19,8 +31,31 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     }));
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEntriesService, EntriesService>();
 builder.Services.AddScoped<ILabelsService, LabelsService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!))
+    };
+});
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -51,7 +86,8 @@ for (int i = 0; i < maxRetries; i++)
         }
     }
 }
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseCors();
 app.MapControllers();
 

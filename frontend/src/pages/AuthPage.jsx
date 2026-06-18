@@ -7,24 +7,53 @@ export default function AuthPage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
-  
+
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
+    if (!isLogin) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErrorMsg('Please enter a valid email address.');
+        return;
+      }
+
+      if (password.length < 8) {
+        setErrorMsg('Password must be at least 8 characters long.');
+        return;
+      }
+
+      if (!/[a-zA-Z]/.test(password)) {
+        setErrorMsg('Password must contain at least one letter.');
+        return;
+      }
+
+      if (!/\d/.test(password)) {
+        setErrorMsg('Password must contain at least one number.');
+        return;
+      }
+    }
 
     try {
+      let data;
       if (isLogin) {
-        await loginUser({ email, password });
-        onLogin(); 
+        data = await loginUser({ email, password });
       } else {
-        await registerUser({ firstName, email, password });
+        data = await registerUser({ firstName, email, password });
+      }
+
+      if (data && data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('firstName', data.firstName);
         onLogin();
+      } else {
+        setErrorMsg('Email is already in use.');
       }
     } catch (error) {
       console.error("[AUTH ERROR]", error);
-      setErrorMsg(isLogin ? 'Invalid email or password.' : 'Registration failed. Try again.');
+      setErrorMsg(isLogin ? 'Invalid email or password.' : 'Registration failed. Please try again.');
     }
   };
 
@@ -39,7 +68,7 @@ export default function AuthPage({ onLogin }) {
   return (
     <div className={styles.authContainer}>
       <div className={styles.authCard}>
-        
+
         <h1 className={styles.authTitle}>MoodTracker</h1>
         <p className={styles.authSubtitle}>
           {isLogin ? 'Welcome back! Please enter your details.' : 'Create an account to track your mood.'}
@@ -54,10 +83,10 @@ export default function AuthPage({ onLogin }) {
           {!isLogin && (
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>First Name</label>
-              <input 
-                type="text" 
-                required 
-                className={styles.formInput} 
+              <input
+                type="text"
+                required
+                className={styles.formInput}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
@@ -66,10 +95,10 @@ export default function AuthPage({ onLogin }) {
 
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Email</label>
-            <input 
-              type="email" 
-              required 
-              className={styles.formInput} 
+            <input
+              type="email"
+              required
+              className={styles.formInput}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -77,10 +106,10 @@ export default function AuthPage({ onLogin }) {
 
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Password</label>
-            <input 
-              type="password" 
-              required 
-              className={styles.formInput} 
+            <input
+              type="password"
+              required
+              className={styles.formInput}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />

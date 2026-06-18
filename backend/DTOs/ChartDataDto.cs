@@ -1,6 +1,6 @@
 ﻿namespace backend.DTOs
 {
-    public class DashboardStatsDto
+    public class ChartDataDto
     {
         public List<SparklineDataDto> Sparklines { get; set; } = new();
         public int FrequentMood { get; set; }
