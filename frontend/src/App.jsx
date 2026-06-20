@@ -3,6 +3,7 @@ import { useState } from 'react';
 import AuthPage from './pages/AuthPage';
 import DashboardLayout from './components/DashboardLayout';
 import HomePage from './pages/HomePage';
+import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -20,7 +21,7 @@ export default function App() {
           <Route index element={<Navigate to="/home" replace />} />
           <Route path="home" element={<HomePage />} />
           <Route path="analytics" element={<div>Analysis</div>} />
-          <Route path="settings" element={<div>User Settings</div>} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>

@@ -25,14 +25,14 @@ public class EntriesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] CreateEntryDto dto)
+    public async Task<IActionResult> Post([FromBody] SaveEntryDto dto)
     {
         var createdEntry = await _entriesService.CreateEntryAsync(dto);
         return Ok(createdEntry);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateEntryDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] SaveEntryDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 

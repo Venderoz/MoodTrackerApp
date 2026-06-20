@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import styles from './AuthPage.module.css';
 import { loginUser, registerUser } from '../api/conn';
 
@@ -7,34 +8,38 @@ export default function AuthPage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
-
-  const [errorMsg, setErrorMsg] = useState('');
+  
+  const [message, setMessage] = useState({ type: '', text: '' });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg('');
+    setMessage({ type: '', text: '' });
+
     if (!isLogin) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        setErrorMsg('Please enter a valid email address.');
+        setMessage({ type: 'error', text: 'Please enter a valid email address.' });
         return;
       }
 
       if (password.length < 8) {
-        setErrorMsg('Password must be at least 8 characters long.');
+        setMessage({ type: 'error', text: 'Password must be at least 8 characters long.' });
         return;
       }
 
       if (!/[a-zA-Z]/.test(password)) {
-        setErrorMsg('Password must contain at least one letter.');
+        setMessage({ type: 'error', text: 'Password must contain at least one letter.' });
         return;
       }
 
       if (!/\d/.test(password)) {
-        setErrorMsg('Password must contain at least one number.');
+        setMessage({ type: 'error', text: 'Password must contain at least one number.' });
         return;
       }
     }
+
+    setIsLoading(true);
 
     try {
       let data;
@@ -49,11 +54,16 @@ export default function AuthPage({ onLogin }) {
         localStorage.setItem('firstName', data.firstName);
         onLogin();
       } else {
-        setErrorMsg('Email is already in use.');
+        setMessage({ type: 'error', text: 'Email is already in use.' });
       }
     } catch (error) {
       console.error("[AUTH ERROR]", error);
-      setErrorMsg(isLogin ? 'Invalid email or password.' : 'Registration failed. Please try again.');
+      setMessage({ 
+        type: 'error', 
+        text: isLogin ? 'Invalid email or password.' : 'Registration failed. Please try again.' 
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -62,7 +72,7 @@ export default function AuthPage({ onLogin }) {
     setFirstName('');
     setEmail('');
     setPassword('');
-    setErrorMsg('');
+    setMessage({ type: '', text: '' });
   };
 
   return (
@@ -73,9 +83,11 @@ export default function AuthPage({ onLogin }) {
         <p className={styles.authSubtitle}>
           {isLogin ? 'Welcome back! Please enter your details.' : 'Create an account to track your mood.'}
         </p>
-        {errorMsg && (
-          <div style={{ color: '#e74c3c', textAlign: 'center', marginBottom: '15px', fontWeight: 'bold' }}>
-            {errorMsg}
+
+        {message.text && (
+          <div className={`${styles.alert} ${styles[message.type]}`}>
+            {message.type === 'error' ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+            {message.text}
           </div>
         )}
 
@@ -115,12 +127,12 @@ export default function AuthPage({ onLogin }) {
             />
           </div>
 
-          <button type="submit" className={styles.btnPrimary}>
-            {isLogin ? 'Sign In' : 'Sign Up'}
+          <button type="submit" className={styles.btnPrimary} disabled={isLoading}>
+            {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '25px', fontSize: '14px', color: '#7f8c8d' }}>
+        <p style={{ textAlign: 'center', marginTop: '25px', fontSize: '14px', color: 'var(--text-secondary)' }}>
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <span onClick={toggleMode} className={styles.textLink}>
             {isLogin ? 'Sign up here' : 'Log in here'}

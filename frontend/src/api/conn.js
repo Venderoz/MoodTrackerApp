@@ -1,6 +1,7 @@
 const API_URL = '/api/entries';
 const AUTH_URL = '/api/auth';
 const LABELS_URL = '/api/labels';
+const PROFILE_URL = '/api/profile';
 
 const fetchWithAuth = async (url, options = {}) => {
   const token = localStorage.getItem('token');
@@ -48,15 +49,41 @@ export const loginUser = async (payload) => {
   return text ? JSON.parse(text) : null; 
 };
 
-export const getEntries = async () => {
-  const response = await fetchWithAuth(API_URL);
-  if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+export const getProfile = async () => {
+  const response = await fetchWithAuth(PROFILE_URL);
+  if (!response.ok) throw new Error('Failed to fetch profile');
   return await response.json();
 };
 
-export const getLabels = async () => {
-  const response = await fetchWithAuth(LABELS_URL);
-  if (!response.ok) throw new Error('Failed to fetch labels');
+export const updateProfile = async (payload) => {
+  const response = await fetchWithAuth(PROFILE_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to update profile');
+  }
+  return await response.json();
+};
+
+export const createLabel = async (payload) => {
+  const response = await fetchWithAuth(LABELS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to create label');
+  }
+  return await response.json();
+};
+
+export const getEntries = async () => {
+  const response = await fetchWithAuth(API_URL);
+  if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
   return await response.json();
 };
 
@@ -79,6 +106,33 @@ export const updateEntry = async (id, payload) => {
   });
   if (!response.ok) throw new Error(`Failed to update entry with ID: ${id}`);
   return await response.json(); 
+};
+
+export const getLabels = async () => {
+  const response = await fetchWithAuth(LABELS_URL);
+  if (!response.ok) throw new Error('Failed to fetch labels');
+  return await response.json();
+};
+
+export const updateLabel = async (id, payload) => {
+  const response = await fetchWithAuth(`${LABELS_URL}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to update label');
+  }
+  return await response.json();
+};
+
+export const deleteLabel = async (id) => {
+  const response = await fetchWithAuth(`${LABELS_URL}/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete label');
+  return true;
 };
 
 export const getDashboardStats = async () => {
