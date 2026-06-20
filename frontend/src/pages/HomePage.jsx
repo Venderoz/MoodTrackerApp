@@ -188,16 +188,25 @@ export default function HomePage() {
                 <p className={styles.stepSubtitle}>Select all that apply.</p>
 
                 <div className={styles.labelsGrid}>
-                  {availableLabels.map(label => (
-                    <button
-                      key={label.id}
-                      onClick={() => toggleLabel(label.name)}
-                      style={{ borderColor: label.colorHex }}
-                      className={`${styles.labelPill} ${selectedLabels.includes(label.name) ? styles.labelPillActive : ''}`}
-                    >
-                      {label.name}
-                    </button>
-                  ))}
+                  {availableLabels.map(label => {
+                    const isActive = selectedLabels.includes(label.name);
+                    return (
+                      <button
+                        key={label.id}
+                        type="button"
+                        onClick={() => toggleLabel(label.name)}
+                        style={{ 
+                          borderColor: label.colorHex,
+                          backgroundColor: isActive ? label.colorHex : 'var(--bg-main)',
+                          color: isActive ? '#ffffff' : 'var(--text-primary)',
+                          textShadow: isActive ? '0px 1px 2px rgba(0,0,0,0.4)' : 'none' 
+                        }}
+                        className={styles.labelPill}
+                      >
+                        {label.name}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className={styles.modalActions}>

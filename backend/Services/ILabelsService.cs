@@ -1,9 +1,11 @@
-﻿using backend.Models;
+﻿using backend.DTOs;
 
-namespace backend.Services
+namespace backend.Services;
+
+public interface ILabelsService
 {
-    public interface ILabelsService
-    {
-        Task<IEnumerable<CustomLabel>> GetLabelsForUserAsync();
-    }
+    Task<IEnumerable<LabelDto>> GetLabelsForUserAsync();
+    Task<LabelDto?> CreateLabelAsync(SaveLabelDto dto);
+    Task<LabelDto?> UpdateLabelAsync(int id, SaveLabelDto dto);
+    Task<bool> DeleteLabelAsync(int id);
 }
