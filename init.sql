@@ -67,5 +67,5 @@ CREATE TABLE entry_labels (
 ) ENGINE=InnoDB;
 
 
-INSERT INTO users (id, email, password_hash) VALUES (1, 'test@test.com', 'dummy_hash_123'); 
-INSERT INTO user_profiles (id, first_name, last_name) VALUES (1, 'Jan', 'Kowalski');
+INSERT INTO users (id, email, password_hash) VALUES (1, 'admin@gmail.com', '$2a$11$ITgC1z.uNTFX5HuCM1lLteY.77eOorY5SOX5VzX7r//TEN/IwW4j.'); 
+INSERT INTO user_profiles (id, first_name, last_name) VALUES (1, 'Admin', 'Adminowski');

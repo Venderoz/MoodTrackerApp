@@ -79,6 +79,10 @@ export default function EntryModal({ entry, onClose, onUpdate, availableLabels }
               type="range" min="0" max="16" step="0.5"
               value={sleepHours}
               onChange={(e) => setSleepHours(e.target.value)}
+              style={{ 
+                accentColor: 'var(--color-primary)',
+                cursor: 'pointer'
+              }}
               className={styles.sleepSlider}
             />
           </div>

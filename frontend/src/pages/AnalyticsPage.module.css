@@ -1,0 +1,203 @@
+.analyticsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  animation: fadeIn 0.3s ease-in-out;
+  width: 100%;
+  max-width: 100%;
+  flex-grow: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.pageTitle {
+  color: var(--text-primary);
+  margin: 0 0 5px 0;
+  font-size: 2rem;
+}
+
+.subText {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.exportBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.exportBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.filtersCard {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1px 1.5fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; 
+}
+
+.filterTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.dateInputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-secondary);
+}
+
+.dateInput {
+  flex: 1; 
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  color-scheme: dark;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.quickFilters {
+  display: flex;
+  gap: 20px;
+  margin-top: 5px;
+}
+
+.quickFilterBtn {
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color 0.2s;
+  display: flex;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0;
+}
+
+.quickFilterBtn.active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.quickFilterBtn:hover {
+  color: var(--color-primary);
+}
+
+.labelsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filterLabelPill {
+  background-color: var(--bg-main);
+  border: 1.5px solid; 
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.filterLabelPill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.divider {
+  width: 1px;
+  background-color: var(--border-color);
+  height: 100%;
+}
+
+.loadingArea, .emptyArea {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+}
+
+.gridHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+  margin-top: 10px;
+}
+
+.gridHeader h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.entriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .filtersCard {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .divider {
+    width: 100%;
+    height: 1px;
+  }
+}
