@@ -8,7 +8,6 @@ import styles from './DashboardLayout.module.css';
 export default function DashboardLayout() {
   const [entries, setEntries] = useState([]);
   const [labels, setLabels] = useState([]);
-
   const [refreshCount, setRefreshCount] = useState(0);
 
   const location = useLocation();
@@ -22,7 +21,6 @@ export default function DashboardLayout() {
       ]);
       setEntries(entriesData);
       setLabels(labelsData);
-    
       setRefreshCount(prev => prev + 1);
     } catch (error) {
       console.error("Failed to load global data.", error);
@@ -37,7 +35,7 @@ export default function DashboardLayout() {
   }, [refreshData]);
 
   return (
-    <div className={styles.layoutWrapper}>
+    <div className={isAnalyticsPage ? styles.layoutWrapperWide : styles.layoutWrapper}>
       <aside className={styles.leftColumn}>
         <Sidebar />
       </aside>

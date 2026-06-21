@@ -51,8 +51,8 @@ public class EntriesController : ControllerBase
         return Ok(stats);
     }
 
-    [HttpGet("analysis")]
-    public async Task<IActionResult> GetForAnalysis([FromQuery] EntryFilterDto filters)
+    [HttpGet("analytics")]
+    public async Task<IActionResult> GetForAnalytics([FromQuery] EntryFilterDto filters)
     {
         var entries = await _entriesService.GetFilteredEntriesAsync(filters);
         return Ok(entries);

@@ -216,12 +216,19 @@ public class EntriesService : IEntriesService
 
         if (filters.EndDate.HasValue)
         {
-            query = query.Where(e => e.CreatedAt <= filters.EndDate.Value);
+            var endOfDay = filters.EndDate.Value.Date.AddDays(1).AddTicks(-1);
+            query = query.Where(e => e.CreatedAt <= endOfDay);
         }
 
+        // ZMIANA: Logika AND dla etykiet
         if (filters.LabelNames != null && filters.LabelNames.Any())
         {
-            query = query.Where(e => e.Labels.Any(l => filters.LabelNames.Contains(l.Name)));
+            // Przechodzimy przez każdą wybraną etykietę i nakładamy osobny warunek.
+            // Entity Framework połączy je operatorem AND w zapytaniu SQL.
+            foreach (var labelName in filters.LabelNames)
+            {
+                query = query.Where(e => e.Labels.Any(l => l.Name == labelName));
+            }
         }
 
         return await query

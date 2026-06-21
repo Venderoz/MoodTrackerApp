@@ -4,6 +4,7 @@ import AuthPage from './pages/AuthPage';
 import DashboardLayout from './components/DashboardLayout';
 import HomePage from './pages/HomePage';
 import SettingsPage from './pages/SettingsPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -20,7 +21,7 @@ export default function App() {
         <Route path="/" element={<DashboardLayout />}>
           <Route index element={<Navigate to="/home" replace />} />
           <Route path="home" element={<HomePage />} />
-          <Route path="analytics" element={<div>Analysis</div>} />
+          <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/home" replace />} />

@@ -33,14 +33,14 @@ export default function ActivityChart({ entries }) {
     return (
         <div className={styles.chartBox}>
             <h3>Activity Calendar</h3>
-            <div style={{ overflowX: 'auto' }}>
+            <div className={styles.calendarWrapper}>
                 <ActivityCalendar
                     data={calendarData}
                     maxLevel={1}
 
                     blockSize={14}
-                    blockMargin={4}
-                    fontSize={14}
+                    blockMargin={3}
+                    fontSize={12}
 
                     colorScheme="light"
                     theme={{

@@ -151,7 +151,7 @@ export const getFilteredEntries = async (filters = {}) => {
     filters.labelNames.forEach(name => params.append('labelNames', name));
   }
 
-  const response = await fetchWithAuth(`${API_URL}/analysis?${params.toString()}`);
+  const response = await fetchWithAuth(`${API_URL}/analytics?${params.toString()}`);
   if (!response.ok) throw new Error('Failed to fetch filtered entries');
   return await response.json();
 };
