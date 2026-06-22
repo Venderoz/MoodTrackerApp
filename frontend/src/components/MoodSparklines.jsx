@@ -1,6 +1,6 @@
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
 import { Smile, Moon } from 'lucide-react';
-import styles from './MoodSparklines.module.css';
+import styles from './css_modules/MoodSparklines.module.css';
 
 const MiniTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {

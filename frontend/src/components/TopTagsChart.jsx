@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import styles from './TopTagsChart.module.css';
+import styles from './css_modules/TopTagsChart.module.css';
 
 export default function TopTagsChart({ data }) {
     const renderCustomLegend = (props) => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { User, Tag, LogOut, CheckCircle2, Trash2, Plus, Pencil, Check, X, AlertTriangle } from 'lucide-react';
 import { getProfile, updateProfile, createLabel, updateLabel, deleteLabel } from '../api/conn';
-import styles from './SettingsPage.module.css';
+import styles from './css_modules/SettingsPage.module.css';
 
 export default function SettingsPage() {
     const { labels: availableLabels, refreshData } = useOutletContext();

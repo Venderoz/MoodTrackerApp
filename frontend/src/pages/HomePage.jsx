@@ -5,7 +5,7 @@ import { createEntry, getDashboardStats } from '../api/conn';
 import ActivityChart from '../components/ActivityChart';
 import MoodSparklines from '../components/MoodSparklines';
 import TopTagsChart from '../components/TopTagsChart';
-import styles from './HomePage.module.css';
+import styles from './css_modules/HomePage.module.css';
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);

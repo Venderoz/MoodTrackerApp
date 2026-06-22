@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using backend.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
-using backend.Models;
 
 namespace backend.Data;
 
@@ -53,6 +54,31 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("fk_custom_labels_users");
         });
+        modelBuilder
+            .UseCollation("utf8mb4_unicode_ci")
+            .HasCharSet("utf8mb4");
+
+        // --- DODANY KONWERTER UTC ---
+        var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+            v => v.ToUniversalTime(),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+            v => v.HasValue ? v.Value.ToUniversalTime() : v,
+            v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (entityType.IsKeyless) continue;
+
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                    property.SetValueConverter(dateTimeConverter);
+                else if (property.ClrType == typeof(DateTime?))
+                    property.SetValueConverter(nullableDateTimeConverter);
+            }
+        }
 
         modelBuilder.Entity<Entry>(entity =>
         {

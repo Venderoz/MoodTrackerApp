@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityCalendar } from 'react-activity-calendar';
 import { Tooltip } from 'react-tooltip';
-import styles from './ActivityChart.module.css';
+import styles from './css_modules/ActivityChart.module.css';
 
 export default function ActivityChart({ entries }) {
     const generateCalendarData = () => {

@@ -1,7 +1,7 @@
 ﻿using backend.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using backend.Services;
 using Microsoft.AspNetCore.Authorization;
+using backend.Services.Interfaces;
 
 namespace backend.Controllers;
 
@@ -42,6 +42,13 @@ public class EntriesController : ControllerBase
             return NotFound($"No entry with id: {id}");
         }
         return Ok(updatedEntry);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _entriesService.DeleteEntryAsync(id);
+        return NoContent();
     }
 
     [HttpGet("dashboard-stats")]
