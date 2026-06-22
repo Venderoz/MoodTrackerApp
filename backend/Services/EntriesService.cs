@@ -236,11 +236,8 @@ public class EntriesService : IEntriesService
         {
             var endOfDay = filters.EndDate.Value.Date.AddDays(1).AddTicks(-1);
             query = query.Where(e => e.CreatedAt <= endOfDay);
-            var endOfDay = filters.EndDate.Value.Date.AddDays(1).AddTicks(-1);
-            query = query.Where(e => e.CreatedAt <= endOfDay);
         }
 
-        // ZMIANA: Logika AND dla etykiet
         if (filters.LabelNames != null && filters.LabelNames.Any())
         {
             foreach (var labelName in filters.LabelNames)
