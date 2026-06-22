@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { updateEntry } from '../api/conn';
 import { Star, X } from 'lucide-react';
-import styles from './EntryModal.module.css';
+import styles from './css_modules/EntryModal.module.css';
 
 export default function EntryModal({ entry, onClose, onUpdate, availableLabels }) {
   const [moodLevel, setMoodLevel] = useState(entry.moodLevel);

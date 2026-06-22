@@ -5,7 +5,7 @@ import { getFilteredEntries } from '../api/conn';
 import EntryModal from '../components/EntryModal';
 import EntryCard from '../components/EntryCard';
 import MoodTrendChart from '../components/MoodTrendChart';
-import styles from './AnalyticsPage.module.css';
+import styles from './css_modules/AnalyticsPage.module.css';
 
 export default function AnalyticsPage() {
     const { labels: availableLabels, refreshData } = useOutletContext();
@@ -24,6 +24,8 @@ export default function AnalyticsPage() {
     const [selectedLabels, setSelectedLabels] = useState([]);
 
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    const todayStr = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         const fetchFilteredData = async () => {
@@ -102,9 +104,28 @@ export default function AnalyticsPage() {
                 <div className={styles.filterSection}>
                     <div className={styles.filterTitle}><Calendar size={18} /> Timeframe</div>
                     <div className={styles.dateInputs}>
-                        <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setActiveFilter('custom'); }} className={styles.dateInput} />
+                        <input
+                            type="date"
+                            value={startDate}
+                            max={endDate || todayStr}
+                            onChange={(e) => {
+                                setStartDate(e.target.value);
+                                setActiveFilter('custom');
+                            }}
+                            className={styles.dateInput}
+                        />
                         <span>—</span>
-                        <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setActiveFilter('custom'); }} className={styles.dateInput} />
+                        <input
+                            type="date"
+                            value={endDate}
+                            min={startDate}
+                            max={todayStr}
+                            onChange={(e) => {
+                                setEndDate(e.target.value);
+                                setActiveFilter('custom');
+                            }}
+                            className={styles.dateInput}
+                        />
                     </div>
                     <div className={styles.quickFilters}>
                         <button className={`${styles.quickFilterBtn} ${activeFilter === '7d' ? styles.active : ''}`} onClick={() => setQuickDate(7, '7d')}>Last 7d</button>
@@ -156,6 +177,10 @@ export default function AnalyticsPage() {
                         key={entry.id}
                         entry={entry}
                         onClick={() => setSelectedEntry(entry)}
+                        onDeleted={() => {
+                            setRefreshTrigger(prev => prev + 1);
+                            if (refreshData) refreshData();
+                        }}
                     />
                 ))}
             </div>

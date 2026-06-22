@@ -1,4 +1,4 @@
-const API_URL = '/api/entries';
+const ENTRIES_URL = '/api/entries';
 const AUTH_URL = '/api/auth';
 const LABELS_URL = '/api/labels';
 const PROFILE_URL = '/api/profile';
@@ -82,13 +82,13 @@ export const createLabel = async (payload) => {
 };
 
 export const getEntries = async () => {
-  const response = await fetchWithAuth(API_URL);
+  const response = await fetchWithAuth(ENTRIES_URL);
   if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
   return await response.json();
 };
 
 export const createEntry = async (payload) => {
-  const response = await fetchWithAuth(API_URL, {
+  const response = await fetchWithAuth(ENTRIES_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -99,13 +99,21 @@ export const createEntry = async (payload) => {
 };
 
 export const updateEntry = async (id, payload) => {
-  const response = await fetchWithAuth(`${API_URL}/${id}`, {
+  const response = await fetchWithAuth(`${ENTRIES_URL}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
   if (!response.ok) throw new Error(`Failed to update entry with ID: ${id}`);
   return await response.json(); 
+};
+
+export const deleteEntry = async (id) => {
+  const response = await fetchWithAuth(`${ENTRIES_URL}/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error(`Failed to delete entry with ID: ${id}`);
+  return true; 
 };
 
 export const getLabels = async () => {
@@ -136,7 +144,7 @@ export const deleteLabel = async (id) => {
 };
 
 export const getDashboardStats = async () => {
-  const response = await fetchWithAuth(`${API_URL}/dashboard-stats`);
+  const response = await fetchWithAuth(`${ENTRIES_URL}/dashboard-stats`);
   if (!response.ok) throw new Error('Failed to fetch dashboard stats');
   return await response.json();
 };
@@ -151,7 +159,7 @@ export const getFilteredEntries = async (filters = {}) => {
     filters.labelNames.forEach(name => params.append('labelNames', name));
   }
 
-  const response = await fetchWithAuth(`${API_URL}/analytics?${params.toString()}`);
+  const response = await fetchWithAuth(`${ENTRIES_URL}/analytics?${params.toString()}`);
   if (!response.ok) throw new Error('Failed to fetch filtered entries');
   return await response.json();
 };

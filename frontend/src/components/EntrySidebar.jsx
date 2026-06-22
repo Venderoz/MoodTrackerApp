@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './EntrySidebar.module.css';
+import styles from './css_modules/EntrySidebar.module.css';
 import EntryCard from './EntryCard';
 import EntryModal from './EntryModal';
 
@@ -18,16 +18,19 @@ export default function EntrySidebar({ entries, availableLabels, onRefresh }) {
 
       <div className={styles.list}>
         {recentEntries.map(entry => (
-          <EntryCard 
-            key={entry.id} 
-            entry={entry} 
-            onClick={() => setSelectedEntry(entry)} 
+          <EntryCard
+            key={entry.id}
+            entry={entry}
+            onClick={() => setSelectedEntry(entry)}
+            onDeleted={() => {
+              if (onRefresh) onRefresh();
+            }}
           />
         ))}
       </div>
 
-      <button 
-        className={styles.seeMoreBtn} 
+      <button
+        className={styles.seeMoreBtn}
         onClick={() => navigate('/analytics')}
       >
         See full history

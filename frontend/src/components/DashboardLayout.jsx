@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import EntrySidebar from './EntrySidebar';
 import { getEntries, getLabels } from '../api/conn';
-import styles from './DashboardLayout.module.css';
+import styles from './css_modules/DashboardLayout.module.css';
 
 export default function DashboardLayout() {
   const [entries, setEntries] = useState([]);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import styles from './AuthPage.module.css';
+import styles from './css_modules/AuthPage.module.css';
 import { loginUser, registerUser } from '../api/conn';
 
 export default function AuthPage({ onLogin }) {

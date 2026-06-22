@@ -26,8 +26,8 @@ body {
   --bg-card: #1e1e1e;
   --text-primary: #e0e0e0;
   --text-secondary: #aaaaaa;
-  --color-primary: #c827a2;
-  --color-primary-hover: #e23cbc;
+  --color-primary: #a71f87;
+  --color-primary-hover: #bb1f97;
   --border-color: #333333;
   color-scheme: dark;
 }
@@ -35,4 +35,48 @@ body {
 body {
   background-color: var(--bg-main);
   color: var(--text-primary);
+}
+
+.mobile-fallback {
+  display: none;
+}
+
+@media (max-width: 1250px) {
+  .mobile-fallback {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    padding: 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+  }
+
+  .mobile-fallback h1 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+  }
+
+  .mobile-fallback p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .mobile-fallback-icon > svg{
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .app-content {
+    display: none !important;
+  }
 }

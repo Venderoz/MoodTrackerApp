@@ -1,6 +1,7 @@
 ﻿using backend.Data;
 using backend.DTOs;
 using backend.Models;
+using backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Security.Claims;
@@ -67,7 +68,9 @@ public class EntriesService : IEntriesService
             UserId = userId,
             MoodLevel = dto.MoodLevel,
             SleepDuration = dto.SleepDuration,
-            Note = dto.Note
+            Note = dto.Note,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         if (dto.LabelNames != null && dto.LabelNames.Any())
@@ -147,6 +150,21 @@ public class EntriesService : IEntriesService
         };
     }
 
+    public async Task DeleteEntryAsync(int id)
+    {
+        var userId = GetCurrentUserId();
+        var entry = await _context.Entries
+            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
+
+        if (entry == null)
+        {
+            throw new KeyNotFoundException($"No entry found with id: {id}");
+        }
+
+        _context.Entries.Remove(entry);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<ChartDataDto> GetDashboardStatsAsync()
     {
         var userId = GetCurrentUserId();
@@ -220,11 +238,8 @@ public class EntriesService : IEntriesService
             query = query.Where(e => e.CreatedAt <= endOfDay);
         }
 
-        // ZMIANA: Logika AND dla etykiet
         if (filters.LabelNames != null && filters.LabelNames.Any())
         {
-            // Przechodzimy przez każdą wybraną etykietę i nakładamy osobny warunek.
-            // Entity Framework połączy je operatorem AND w zapytaniu SQL.
             foreach (var labelName in filters.LabelNames)
             {
                 query = query.Where(e => e.Labels.Any(l => l.Name == labelName));

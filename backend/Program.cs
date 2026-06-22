@@ -1,6 +1,9 @@
 using backend.Data;
+using backend.Middleware;
 using backend.Services;
+using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
@@ -22,8 +25,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-builder.Services.AddCors(options => 
-    options.AddDefaultPolicy(policy => 
+builder.Services.AddCors(options =>
+    options.AddDefaultPolicy(policy =>
     {
         policy
             .AllowAnyOrigin()
@@ -60,7 +63,24 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-});
+})
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var firstError = context.ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault();
+
+            var errorResponse = new
+            {
+                error = firstError ?? "Invalid input data."
+            };
+
+            return new BadRequestObjectResult(errorResponse);
+        };
+    });
 
 var app = builder.Build();
 int maxRetries = 5;
@@ -87,6 +107,8 @@ for (int i = 0; i < maxRetries; i++)
         }
     }
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors();

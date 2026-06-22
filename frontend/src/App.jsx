@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Laptop } from 'lucide-react';
 import { useState } from 'react';
 import AuthPage from './pages/AuthPage';
 import DashboardLayout from './components/DashboardLayout';
@@ -11,11 +12,9 @@ export default function App() {
     return !!localStorage.getItem('token');
   });
 
-  if (!isAuthenticated) {
-    return <AuthPage onLogin={() => setIsAuthenticated(true)} />;
-  }
-
-  return (
+  const appContent = !isAuthenticated ? (
+    <AuthPage onLogin={() => setIsAuthenticated(true)} />
+  ) : (
     <BrowserRouter basename="/moodtracker">
       <Routes>
         <Route path="/" element={<DashboardLayout />}>
@@ -27,5 +26,22 @@ export default function App() {
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>
+  );
+
+  return (
+    <>
+      <div className="mobile-fallback">
+        <div className="mobile-fallback-icon">{<Laptop />}</div>
+        <h1>Desktop Only</h1>
+        <p>
+          This application is highly detailed and optimized for larger screens. 
+          Please use a computer or tablet in landscape mode.
+        </p>
+      </div>
+
+      <div className="app-content">
+        {appContent}
+      </div>
+    </>
   );
 }
