@@ -1,0 +1,40 @@
+.sidebarContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.title {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.seeMoreBtn {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: transparent;
+  border: 1px dashed var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.seeMoreBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: rgba(86, 6, 67, 0.05);
+}
