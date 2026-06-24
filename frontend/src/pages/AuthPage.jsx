@@ -79,9 +79,15 @@ export default function AuthPage({ onLogin }) {
     <div className={styles.authContainer}>
       <div className={styles.authCard}>
 
-        <h1 className={styles.authTitle}>MoodTracker</h1>
-        <p className={styles.authSubtitle}>
+        {/* <h1 className={styles.authTitle}>MoodTracker</h1> */}
+        <h1 className={styles.authTitle}>
+          ZMIANA PO CD
+        </h1>
+        {/* <p className={styles.authSubtitle}>
           {isLogin ? 'Welcome back! Please enter your details.' : 'Create an account to track your mood.'}
+        </p> */}
+        <p className={styles.authSubtitle}>
+          {isLogin ? 'Wprowadziłem zmiany w ostatnim commitcie' : 'Create an account to track your mood.'}
         </p>
 
         {message.text && (
